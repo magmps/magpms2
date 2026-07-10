@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>MAGPMS — Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=JetBrains+Mono:wght@400;500&family=Inter:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+:root{--bg:#080c14;--surface:#0e1520;--border:#1c2a3e;--accent:#f59e0b;--accent2:#0ea5e9;
+  --danger:#ef4444;--success:#22c55e;--purple:#a78bfa;--txt:#e2e8f0;--muted:#64748b;}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--txt);font-family:'Inter',sans-serif;font-size:15px;min-height:100vh}
+header{background:var(--surface);border-bottom:1px solid var(--border);padding:14px 18px;
+  display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:10}
+header h1{font-family:'Syne',sans-serif;font-size:17px}
+header h1 small{display:block;font-size:10px;color:var(--muted);font-weight:400}
+.btn{padding:8px 14px;border:none;border-radius:9px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit}
+.btn-out{background:var(--danger);color:#fff}
+.btn-ok{background:var(--success);color:#000;padding:6px 12px;font-size:12px}
+.btn-no{background:var(--danger);color:#fff;padding:6px 12px;font-size:12px}
+.btn-gold{background:var(--accent);color:#000;width:100%;padding:11px;font-size:13.5px}
+.btn-blue{background:var(--accent2);color:#000;padding:6px 12px;font-size:12px}
+.btn:disabled{opacity:.5}
+.wrap{max-width:860px;margin:0 auto;padding:18px 16px 40px;display:grid;gap:16px}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.stat{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:14px;text-align:center}
+.stat .n{font-family:'JetBrains Mono',monospace;font-size:22px;font-weight:700;color:var(--accent)}
+.stat .l{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-top:2px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:18px}
+.card h2{font-family:'Syne',sans-serif;font-size:15px;margin-bottom:12px;color:var(--accent)}
+.tabs{display:flex;gap:7px;margin-bottom:13px;flex-wrap:wrap}
+.tab{padding:6px 14px;border-radius:99px;border:1px solid var(--border);background:transparent;
+  color:var(--muted);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit}
+.tab.active{background:var(--accent);color:#000;border-color:var(--accent)}
+.row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:11px 0;
+  border-bottom:1px solid var(--border);flex-wrap:wrap}
+.row:last-child{border-bottom:none}
+.row .info h3{font-size:14px}
+.row .info p{font-size:11.5px;color:var(--muted)}
+.tag{display:inline-block;padding:2px 9px;border-radius:99px;font-size:10.5px;font-weight:700;
+  font-family:'JetBrains Mono',monospace;margin-top:3px}
+.tag.pending{background:rgba(245,158,11,.15);color:var(--accent)}
+.tag.approved{background:rgba(34,197,94,.15);color:var(--success)}
+.tag.rejected{background:rgba(239,68,68,.15);color:var(--danger)}
+.tag.open{background:rgba(14,165,233,.15);color:var(--accent2)}
+.tag.closed{background:rgba(100,116,139,.2);color:var(--muted)}
+.tank{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--border);font-size:13px;gap:8px;flex-wrap:wrap}
+.tank:last-child{border-bottom:none}
+.bar{width:110px;height:7px;border-radius:99px;background:var(--border);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--accent2)}
+.mono{font-family:'JetBrains Mono',monospace;font-size:12px}
+table{width:100%;border-collapse:collapse;font-size:12.5px}
+th{color:var(--muted);text-align:left;font-size:10px;text-transform:uppercase;padding:6px 8px;border-bottom:1px solid var(--border)}
+td{padding:8px;border-bottom:1px solid var(--border)}
+.empty{color:var(--muted);text-align:center;padding:20px 0;font-size:13px}
+.field{display:grid;gap:5px;margin-bottom:11px}
+label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+input,select{background:var(--bg);border:1px solid var(--border);border-radius:10px;color:var(--txt);
+  font-size:14px;padding:10px 13px;width:100%;font-family:inherit;outline:none}
+input:focus,select:focus{border-color:var(--accent)}
+select option{background:var(--surface)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.msg{padding:9px 12px;border-radius:9px;font-size:13px;display:none;margin-top:8px}
+.msg.error{background:rgba(239,68,68,.12);color:var(--danger);display:block}
+.msg.success{background:rgba(34,197,94,.12);color:var(--success);display:block}
+#loading{display:grid;place-items:center;height:100vh;color:var(--muted)}
+@media(max-width:560px){.stats{grid-template-columns:repeat(2,1fr)}.grid2{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div id="loading">Loading...</div>
+<div id="app" style="display:none">
+<header>
+  <h1>🛡 MAGPMS Admin<small id="whoami"></small></h1>
+  <button class="btn btn-out" onclick="logout()">Log Out</button>
+</header>
+<div class="wrap">
+
+  <div class="stats">
+    <div class="stat"><div class="n" id="stPending">0</div><div class="l">Pending</div></div>
+    <div class="stat"><div class="n" id="stApproved">0</div><div class="l">Approved</div></div>
+    <div class="stat"><div class="n" id="stSales">0</div><div class="l">Sales</div></div>
+    <div class="stat"><div class="n" id="stRevenue">0</div><div class="l">ETB Total</div></div>
+  </div>
+
+  <!-- PRICES -->
+  <div class="card">
+    <h2>💲 Fuel Prices (ETB / Liter)</h2>
+    <div class="grid2">
+      <div class="field"><label>Diesel</label><input type="number" id="prDiesel" step="0.01" min="0" inputmode="decimal"/></div>
+      <div class="field"><label>Petrol</label><input type="number" id="prPetrol" step="0.01" min="0" inputmode="decimal"/></div>
+    </div>
+    <button class="btn btn-gold" id="priceBtn" onclick="savePrices()">💾 Update Prices</button>
+    <div class="msg" id="priceMsg"></div>
+  </div>
+
+  <!-- STAFF -->
+  <div class="card">
+    <h2>👥 Staff Accounts</h2>
+    <div class="tabs">
+      <button class="tab active" onclick="setFilter('pending',this)">Pending</button>
+      <button class="tab" onclick="setFilter('approved',this)">Approved</button>
+      <button class="tab" onclick="setFilter('rejected',this)">Rejected</button>
+      <button class="tab" onclick="setFilter('all',this)">All</button>
+    </div>
+    <div id="staffList" class="empty">Loading...</div>
+  </div>
+
+  <!-- TANKS + DELIVERY -->
+  <div class="card">
+    <h2>🛢 Tanks &amp; Fuel Delivery</h2>
+    <div id="tankList" class="empty">Loading...</div>
+    <div style="border-top:1px solid var(--border);margin:12px 0"></div>
+    <div class="grid2">
+      <div class="field"><label>Tank</label><select id="dvTank"></select></div>
+      <div class="field"><label>Liters Delivered</label><input type="number" id="dvLiters" min="0" step="1" inputmode="numeric"/></div>
+    </div>
+    <button class="btn btn-gold" id="dvBtn" onclick="recordDelivery()">🚚 Record Delivery</button>
+    <div class="msg" id="dvMsg"></div>
+  </div>
+
+  <!-- CREDIT CUSTOMERS -->
+  <div class="card">
+    <h2>🧾 Credit Customers</h2>
+    <div class="grid2">
+      <div class="field"><label>Name</label><input type="text" id="ccName"/></div>
+      <div class="field"><label>Phone</label><input type="text" id="ccPhone" placeholder="09xxxxxxxx"/></div>
+      <div class="field"><label>Plate No</label><input type="text" id="ccPlate"/></div>
+      <div class="field"><label>Credit Limit (ETB, 0 = unlimited)</label><input type="number" id="ccLimit" min="0" step="1" value="0"/></div>
+    </div>
+    <button class="btn btn-gold" id="ccBtn" onclick="addCustomer()">➕ Add Customer</button>
+    <div class="msg" id="ccMsg"></div>
+    <div style="border-top:1px solid var(--border);margin:12px 0"></div>
+    <div id="custList" class="empty">Loading...</div>
+  </div>
+
+  <!-- SHIFTS -->
+  <div class="card">
+    <h2>🕒 Shifts</h2>
+    <table>
+      <thead><tr><th>Staff</th><th>Opened</th><th>Open M</th><th>Close M</th><th>Liters</th><th>Status</th></tr></thead>
+      <tbody id="shiftBody"><tr><td colspan="6" class="empty">Loading...</td></tr></tbody>
+    </table>
+  </div>
+
+  <!-- SALES -->
+  <div class="card">
+    <h2>💰 All Sales (latest 100)</h2>
+    <table>
+      <thead><tr><th>Time</th><th>Staff</th><th>Fuel</th><th>Liters</th><th>ETB</th><th>Pay</th></tr></thead>
+      <tbody id="salesBody"><tr><td colspan="6" class="empty">Loading...</td></tr></tbody>
+    </table>
+  </div>
+
+</div>
+</div>
+
+<script src="config.js"></script>
+<script>
+let session=null, allStaff=[], filter='pending', tanksCache=[];
+
+function logout(){localStorage.removeItem('magpms_admin');location.href='index.html';}
+function esc(s){const d=document.createElement('div');d.textContent=s||'';return d.innerHTML;}
+function msg(id,text,type){const el=document.getElementById(id);el.textContent=text;el.className='msg '+type;}
+
+/* ---- PRICES ---- */
+async function loadPrices(){
+  try{
+    const r=await rpc('get_prices',{});
+    if(Array.isArray(r))r.forEach(p=>{
+      if(p.fuel_type==='Diesel')document.getElementById('prDiesel').value=p.price_per_liter;
+      if(p.fuel_type==='Petrol')document.getElementById('prPetrol').value=p.price_per_liter;
+    });
+  }catch(e){}
+}
+async function savePrices(){
+  const d=parseFloat(document.getElementById('prDiesel').value);
+  const p=parseFloat(document.getElementById('prPetrol').value);
+  if(!d||!p||d<=0||p<=0){msg('priceMsg','Enter valid prices','error');return;}
+  const btn=document.getElementById('priceBtn');btn.disabled=true;
+  try{
+    const r1=await rpc('admin_set_price',{p_admin_id:session.id,p_fuel_type:'Diesel',p_price:d});
+    const r2=await rpc('admin_set_price',{p_admin_id:session.id,p_fuel_type:'Petrol',p_price:p});
+    msg('priceMsg',(r1.success&&r2.success)?'Prices updated':'Error updating',(r1.success&&r2.success)?'success':'error');
+  }catch(e){msg('priceMsg','Connection error','error');}
+  finally{btn.disabled=false;}
+}
+
+/* ---- STAFF ---- */
+function setFilter(f,btn){filter=f;document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));btn.classList.add('active');renderStaff();}
+function renderStaff(){
+  const list=document.getElementById('staffList');
+  const rows=filter==='all'?allStaff:allStaff.filter(s=>s.status===filter);
+  document.getElementById('stPending').textContent=allStaff.filter(s=>s.status==='pending').length;
+  document.getElementById('stApproved').textContent=allStaff.filter(s=>s.status==='approved').length;
+  if(rows.length===0){list.className='empty';list.textContent='No staff in this category';return;}
+  list.className='';
+  list.innerHTML=rows.map(s=>`
+    <div class="row"><div class="info">
+      <h3>${esc(s.full_name)}</h3>
+      <p>@${esc(s.username)}${s.phone?' · '+esc(s.phone):''} · ${esc(s.role)}</p>
+      <span class="tag ${s.status}">${s.status}</span></div>
+    <div>
+      ${s.status!=='approved'?`<button class="btn btn-ok" onclick="setStatus('${s.id}','approved')">Approve</button> `:''}
+      ${s.status!=='rejected'?`<button class="btn btn-no" onclick="setStatus('${s.id}','rejected')">Reject</button>`:''}
+    </div></div>`).join('');
+}
+async function setStatus(id,status){
+  const r=await rpc('admin_set_staff_status',{p_staff_id:id,p_admin_id:session.id,p_status:status});
+  if(r.success)loadStaff();else alert(r.message||'Failed');
+}
+async function loadStaff(){
+  try{const r=await rpc('admin_list_staff',{p_status:null});allStaff=Array.isArray(r)?r:[];renderStaff();}catch(e){}
+}
+
+/* ---- TANKS + DELIVERY ---- */
+async function loadTanks(){
+  try{
+    const tanks=await rpc('list_tanks',{});
+    if(!Array.isArray(tanks))return;
+    tanksCache=tanks;
+    const el=document.getElementById('tankList');el.className='';
+    el.innerHTML=tanks.map(t=>{
+      const pct=Math.max(0,Math.min(100,(t.current_liters/t.capacity_liters)*100));
+      return `<div class="tank"><span>${t.tank_name} · ${t.fuel_type}</span>
+        <span class="mono">${Number(t.current_liters).toLocaleString()} / ${Number(t.capacity_liters).toLocaleString()} L</span>
+        <span class="bar"><i style="width:${pct}%"></i></span></div>`;
+    }).join('');
+    document.getElementById('dvTank').innerHTML=tanks.map(t=>
+      `<option value="${t.id}">${t.tank_name} (${t.fuel_type})</option>`).join('');
+  }catch(e){}
+}
+async function recordDelivery(){
+  const tank=parseInt(document.getElementById('dvTank').value);
+  const liters=parseFloat(document.getElementById('dvLiters').value);
+  if(!tank||!liters||liters<=0){msg('dvMsg','Select tank and enter liters','error');return;}
+  const btn=document.getElementById('dvBtn');btn.disabled=true;
+  try{
+    const r=await rpc('admin_record_delivery',{p_admin_id:session.id,p_tank_id:tank,p_liters:liters});
+    msg('dvMsg',r.message,r.success?'success':'error');
+    if(r.success){document.getElementById('dvLiters').value='';loadTanks();}
+  }catch(e){msg('dvMsg','Connection error','error');}
+  finally{btn.disabled=false;}
+}
+
+/* ---- CREDIT CUSTOMERS ---- */
+async function addCustomer(){
+  const name=document.getElementById('ccName').value.trim();
+  const phone=document.getElementById('ccPhone').value.trim();
+  const plate=document.getElementById('ccPlate').value.trim();
+  const lim=parseFloat(document.getElementById('ccLimit').value)||0;
+  if(!name){msg('ccMsg','Enter customer name','error');return;}
+  const btn=document.getElementById('ccBtn');btn.disabled=true;
+  try{
+    const r=await rpc('admin_add_credit_customer',{p_admin_id:session.id,p_name:name,p_phone:phone,p_plate:plate,p_limit:lim});
+    msg('ccMsg',r.message,r.success?'success':'error');
+    if(r.success){['ccName','ccPhone','ccPlate'].forEach(i=>document.getElementById(i).value='');document.getElementById('ccLimit').value='0';loadCustomers();}
+  }catch(e){msg('ccMsg','Connection error','error');}
+  finally{btn.disabled=false;}
+}
+async function payCredit(id,name){
+  const amt=parseFloat(prompt('Payment amount (ETB) from '+name+':'));
+  if(!amt||amt<=0)return;
+  const r=await rpc('admin_credit_payment',{p_admin_id:session.id,p_customer_id:id,p_amount:amt});
+  alert(r.message||'Done');
+  if(r.success)loadCustomers();
+}
+async function loadCustomers(){
+  try{
+    const r=await rpc('list_credit_customers',{});
+    const el=document.getElementById('custList');
+    if(!Array.isArray(r)||r.length===0){el.className='empty';el.textContent='No credit customers yet';return;}
+    el.className='';
+    el.innerHTML=r.map(c=>`
+      <div class="row"><div class="info">
+        <h3>${esc(c.name)}</h3>
+        <p>${c.plate_no?esc(c.plate_no)+' · ':''}${c.phone?esc(c.phone)+' · ':''}limit ${Number(c.credit_limit)>0?Number(c.credit_limit).toLocaleString():'∞'} ETB</p>
+        <span class="tag ${Number(c.balance)>0?'pending':'approved'}">owes ${Number(c.balance).toFixed(2)} ETB</span></div>
+      <div>${Number(c.balance)>0?`<button class="btn btn-blue" onclick="payCredit('${c.id}','${esc(c.name)}')">💵 Payment</button>`:''}</div>
+      </div>`).join('');
+  }catch(e){}
+}
+
+/* ---- SHIFTS ---- */
+async function loadShifts(){
+  try{
+    const r=await rpc('admin_list_shifts',{p_limit:50});
+    const tb=document.getElementById('shiftBody');
+    if(!Array.isArray(r)||r.length===0){tb.innerHTML='<tr><td colspan="6" class="empty">No shifts yet</td></tr>';return;}
+    tb.innerHTML=r.map(sh=>{
+      const opened=new Date(sh.opened_at).toLocaleString('en-GB',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});
+      const liters=(sh.closing_meter!=null&&sh.opening_meter!=null)?(sh.closing_meter-sh.opening_meter).toFixed(1):'—';
+      return `<tr><td>${esc(sh.staff_name)}</td><td class="mono">${opened}</td>
+        <td class="mono">${sh.opening_meter??'—'}</td><td class="mono">${sh.closing_meter??'—'}</td>
+        <td class="mono">${liters}</td><td><span class="tag ${sh.status}">${sh.status}</span></td></tr>`;
+    }).join('');
+  }catch(e){}
+}
+
+/* ---- SALES ---- */
+async function loadSales(){
+  try{
+    const sales=await rpc('list_sales',{p_staff_id:null,p_limit:100});
+    const tb=document.getElementById('salesBody');
+    if(!Array.isArray(sales)||sales.length===0){
+      tb.innerHTML='<tr><td colspan="6" class="empty">No sales yet</td></tr>';
+      document.getElementById('stSales').textContent='0';
+      document.getElementById('stRevenue').textContent='0';return;}
+    document.getElementById('stSales').textContent=sales.length;
+    const rev=sales.reduce((a,s)=>a+Number(s.total_etb||0),0);
+    document.getElementById('stRevenue').textContent=rev.toLocaleString(undefined,{maximumFractionDigits:0});
+    tb.innerHTML=sales.map(s=>{
+      const t=new Date(s.created_at).toLocaleString('en-GB',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});
+      return `<tr><td class="mono">${t}</td><td>${esc(s.staff_name)}</td><td>${s.fuel_type}</td>
+        <td class="mono">${s.liters}</td><td class="mono">${Number(s.total_etb).toFixed(2)}</td><td>${esc(s.payment_method)}</td></tr>`;
+    }).join('');
+  }catch(e){}
+}
+
+(function init(){
+  session=JSON.parse(localStorage.getItem('magpms_admin')||'null');
+  if(!session||!session.success){location.href='index.html';return;}
+  document.getElementById('whoami').textContent=session.full_name;
+  document.getElementById('loading').style.display='none';
+  document.getElementById('app').style.display='block';
+  loadPrices();loadStaff();loadTanks();loadCustomers();loadShifts();loadSales();
+})();
+</script>
+</body>
+</html>

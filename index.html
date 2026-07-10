@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>MAGPMS — Cloud Fuel Station</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500&family=Inter:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --bg:#080c14;--surface:#0e1520;--border:#1c2a3e;
+  --accent:#f59e0b;--accent2:#0ea5e9;--danger:#ef4444;--success:#22c55e;
+  --txt:#e2e8f0;--muted:#64748b;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--txt);font-family:'Inter',sans-serif;font-size:15px;line-height:1.6;min-height:100vh}
+#loginPage{min-height:100vh;display:grid;place-items:center;padding:20px;
+  background:radial-gradient(ellipse 80% 60% at 50% -10%,rgba(245,158,11,.18) 0%,transparent 70%),
+  radial-gradient(ellipse 60% 50% at 80% 100%,rgba(14,165,233,.12) 0%,transparent 60%),var(--bg)}
+.login-wrap{width:min(400px,92vw);animation:fadeUp .6s ease both}
+@keyframes fadeUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+.login-brand{text-align:center;margin-bottom:24px}
+.logo-ring{width:72px;height:72px;margin:0 auto 14px;border-radius:50%;border:2.5px solid var(--accent);
+  display:grid;place-items:center;font-size:26px;box-shadow:0 0 40px rgba(245,158,11,.25)}
+.login-brand h1{font-family:'Syne',sans-serif;font-size:26px;font-weight:800;letter-spacing:-.02em}
+.login-brand p{color:var(--muted);font-size:11px;margin-top:3px}
+.cloud-tag{display:inline-flex;align-items:center;gap:5px;background:rgba(14,165,233,.12);border:1px solid rgba(14,165,233,.25);
+  border-radius:99px;padding:3px 12px;font-size:11px;color:var(--accent2);margin-top:8px;font-family:'JetBrains Mono',monospace}
+.login-card{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:26px;
+  display:grid;gap:13px;box-shadow:0 40px 80px rgba(0,0,0,.5)}
+.login-card label{font-size:11px;color:var(--muted);letter-spacing:.05em;text-transform:uppercase}
+.field{display:grid;gap:6px}
+.field-hint{font-size:11px;color:var(--muted);text-align:center;font-family:'JetBrains Mono',monospace}
+.role-tabs{display:flex;gap:8px}
+.role-tab{flex:1;padding:9px;border:1.5px solid var(--border);border-radius:10px;background:transparent;
+  color:var(--muted);font-size:13px;font-weight:600;cursor:pointer;text-align:center;transition:all .2s;font-family:inherit}
+.role-tab.active{border-color:var(--accent);background:rgba(245,158,11,.1);color:var(--accent)}
+input{background:var(--bg);border:1px solid var(--border);border-radius:10px;
+  color:var(--txt);font-size:14px;padding:11px 14px;width:100%;font-family:inherit;
+  transition:border-color .2s,box-shadow .2s;outline:none}
+input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(245,158,11,.12)}
+.btn{padding:13px 18px;border:none;border-radius:10px;font-size:15px;font-weight:600;cursor:pointer;
+  width:100%;justify-content:center;transition:opacity .2s;font-family:inherit;background:var(--accent);color:#000}
+.btn:hover{opacity:.85}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.msg{padding:10px 12px;border-radius:10px;font-size:13px;display:none}
+.msg.error{background:rgba(239,68,68,.12);color:var(--danger);border:1px solid rgba(239,68,68,.3);display:block}
+.msg.success{background:rgba(34,197,94,.12);color:var(--success);border:1px solid rgba(34,197,94,.3);display:block}
+.switch-link{text-align:center;font-size:12px;color:var(--muted)}
+.switch-link a{color:var(--accent2);cursor:pointer;text-decoration:underline}
+.hidden{display:none!important}
+</style>
+</head>
+<body>
+<div id="loginPage">
+  <div class="login-wrap">
+    <div class="login-brand">
+      <div class="logo-ring">⛽</div>
+      <h1>MAGPMS</h1>
+      <p>Mohamed Abdu Hirna Gomeju Petroleum — Hirna Town, Oromia</p>
+      <span class="cloud-tag">☁ Supabase Cloud</span>
+    </div>
+
+    <!-- LOGIN CARD -->
+    <div class="login-card" id="loginCard">
+      <div class="role-tabs">
+        <button class="role-tab active" data-role="staff" onclick="setRole('staff',this)">👷 Staff</button>
+        <button class="role-tab" data-role="admin" onclick="setRole('admin',this)">🛡 Admin</button>
+      </div>
+      <div class="field">
+        <label>Username</label>
+        <input type="text" id="lgUser" autocomplete="username"/>
+      </div>
+      <div class="field">
+        <label>Password</label>
+        <input type="password" id="lgPass" autocomplete="current-password"/>
+      </div>
+      <button class="btn" id="lgBtn" onclick="doLogin()">🔐 Sign In</button>
+      <div class="msg" id="lgMsg"></div>
+      <div class="switch-link">New staff member? <a onclick="showSignup()">Create account</a></div>
+    </div>
+
+    <!-- SIGNUP CARD -->
+    <div class="login-card hidden" id="signupCard">
+      <div class="field">
+        <label>Full Name</label>
+        <input type="text" id="suName"/>
+      </div>
+      <div class="field">
+        <label>Phone</label>
+        <input type="text" id="suPhone" placeholder="09xxxxxxxx"/>
+      </div>
+      <div class="field">
+        <label>Username</label>
+        <input type="text" id="suUser"/>
+      </div>
+      <div class="field">
+        <label>Password (min 6)</label>
+        <input type="password" id="suPass"/>
+      </div>
+      <button class="btn" id="suBtn" onclick="doSignup()">✍ Create Staff Account</button>
+      <div class="msg" id="suMsg"></div>
+      <div class="field-hint">Account requires admin approval before login</div>
+      <div class="switch-link">Already have an account? <a onclick="showLogin()">Sign in</a></div>
+    </div>
+  </div>
+</div>
+
+<script src="config.js"></script>
+<script>
+let role='staff';
+
+function setRole(r,btn){
+  role=r;
+  document.querySelectorAll('.role-tab').forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active');
+}
+function showSignup(){document.getElementById('loginCard').classList.add('hidden');document.getElementById('signupCard').classList.remove('hidden');}
+function showLogin(){document.getElementById('signupCard').classList.add('hidden');document.getElementById('loginCard').classList.remove('hidden');}
+function msg(id,text,type){const el=document.getElementById(id);el.textContent=text;el.className='msg '+type;}
+
+// Enter key
+document.getElementById('lgPass').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin()});
+
+async function doLogin(){
+  const u=document.getElementById('lgUser').value.trim();
+  const p=document.getElementById('lgPass').value;
+  if(!u||!p){msg('lgMsg','Enter username and password','error');return;}
+  const btn=document.getElementById('lgBtn');
+  btn.disabled=true;btn.textContent='Signing in...';
+  try{
+    const data=await rpc(role==='admin'?'login_admin':'login_staff',{p_username:u,p_password:p});
+    if(data.success){
+      msg('lgMsg','Welcome, '+data.full_name,'success');
+      localStorage.setItem(role==='admin'?'magpms_admin':'magpms_staff',JSON.stringify(data));
+      setTimeout(()=>{location.href=role==='admin'?'admin.html':'staff.html';},500);
+    }else{
+      msg('lgMsg',data.message||'Login failed','error');
+    }
+  }catch(e){msg('lgMsg','Connection error — check internet','error');}
+  finally{btn.disabled=false;btn.textContent='🔐 Sign In';}
+}
+
+async function doSignup(){
+  const name=document.getElementById('suName').value.trim();
+  const phone=document.getElementById('suPhone').value.trim();
+  const user=document.getElementById('suUser').value.trim();
+  const pass=document.getElementById('suPass').value;
+  if(!name||!user||pass.length<6){msg('suMsg','Fill all fields (password min 6 chars)','error');return;}
+  const btn=document.getElementById('suBtn');
+  btn.disabled=true;btn.textContent='Creating...';
+  try{
+    const data=await rpc('register_staff',{p_full_name:name,p_username:user,p_password:pass,p_phone:phone});
+    msg('suMsg',data.message||'Done',data.success?'success':'error');
+    if(data.success){document.getElementById('suName').value='';document.getElementById('suUser').value='';document.getElementById('suPass').value='';document.getElementById('suPhone').value='';}
+  }catch(e){msg('suMsg','Connection error — check internet','error');}
+  finally{btn.disabled=false;btn.textContent='✍ Create Staff Account';}
+}
+</script>
+</body>
+</html>

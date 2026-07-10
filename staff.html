@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>MAGPMS — Staff</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=JetBrains+Mono:wght@400;500&family=Inter:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+:root{--bg:#080c14;--surface:#0e1520;--border:#1c2a3e;--accent:#f59e0b;--accent2:#0ea5e9;
+  --danger:#ef4444;--success:#22c55e;--txt:#e2e8f0;--muted:#64748b;}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--txt);font-family:'Inter',sans-serif;font-size:15px;min-height:100vh}
+header{background:var(--surface);border-bottom:1px solid var(--border);padding:14px 18px;
+  display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:10}
+header h1{font-family:'Syne',sans-serif;font-size:17px}
+header h1 small{display:block;font-size:10px;color:var(--muted);font-weight:400}
+.btn{padding:8px 14px;border:none;border-radius:9px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit}
+.btn-out{background:var(--danger);color:#fff}
+.btn-gold{background:var(--accent);color:#000;width:100%;padding:12px;font-size:14px}
+.btn-blue{background:var(--accent2);color:#000;width:100%;padding:12px;font-size:14px}
+.btn:disabled{opacity:.5}
+.wrap{max-width:640px;margin:0 auto;padding:18px 16px 40px;display:grid;gap:16px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:18px}
+.card h2{font-family:'Syne',sans-serif;font-size:15px;margin-bottom:12px;color:var(--accent)}
+.field{display:grid;gap:5px;margin-bottom:11px}
+label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+input,select{background:var(--bg);border:1px solid var(--border);border-radius:10px;color:var(--txt);
+  font-size:14px;padding:11px 13px;width:100%;font-family:inherit;outline:none}
+input:focus,select:focus{border-color:var(--accent)}
+select option{background:var(--surface)}
+.msg{padding:9px 12px;border-radius:9px;font-size:13px;display:none;margin-top:10px}
+.msg.error{background:rgba(239,68,68,.12);color:var(--danger);display:block}
+.msg.success{background:rgba(34,197,94,.12);color:var(--success);display:block}
+.tank{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--border);font-size:13px}
+.tank:last-child{border-bottom:none}
+.bar{width:110px;height:7px;border-radius:99px;background:var(--border);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--accent2)}
+.mono{font-family:'JetBrains Mono',monospace;font-size:12px}
+table{width:100%;border-collapse:collapse;font-size:12.5px}
+th{color:var(--muted);text-align:left;font-size:10px;text-transform:uppercase;padding:6px 8px;border-bottom:1px solid var(--border)}
+td{padding:8px;border-bottom:1px solid var(--border)}
+.empty{color:var(--muted);text-align:center;padding:20px 0;font-size:13px}
+.total-line{font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--success);text-align:right;margin-top:8px}
+.shift-banner{border-radius:12px;padding:12px 14px;font-size:13px;margin-bottom:12px;
+  font-family:'JetBrains Mono',monospace;border:1px solid}
+.shift-open{background:rgba(34,197,94,.1);border-color:rgba(34,197,94,.3);color:var(--success)}
+.shift-none{background:rgba(245,158,11,.1);border-color:rgba(245,158,11,.3);color:var(--accent)}
+.price-chips{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap}
+.chip{background:var(--bg);border:1px solid var(--border);border-radius:99px;padding:5px 13px;
+  font-size:12px;font-family:'JetBrains Mono',monospace;color:var(--accent2)}
+#loading{display:grid;place-items:center;height:100vh;color:var(--muted)}
+.hidden{display:none!important}
+</style>
+</head>
+<body>
+<div id="loading">Loading...</div>
+<div id="app" style="display:none">
+<header>
+  <h1>⛽ MAGPMS Staff<small id="whoami"></small></h1>
+  <button class="btn btn-out" onclick="logout()">Log Out</button>
+</header>
+<div class="wrap">
+
+  <!-- SHIFT -->
+  <div class="card">
+    <h2>🕒 My Shift</h2>
+    <div id="shiftBanner" class="shift-banner shift-none">Checking shift...</div>
+    <div id="openShiftForm">
+      <div class="field"><label>Opening Meter Reading (L)</label>
+        <input type="number" id="openMeter" min="0" step="0.01" inputmode="decimal"/></div>
+      <button class="btn btn-blue" id="openBtn" onclick="openShift()">▶ Open Shift</button>
+    </div>
+    <div id="closeShiftForm" class="hidden">
+      <div class="field"><label>Closing Meter Reading (L)</label>
+        <input type="number" id="closeMeter" min="0" step="0.01" inputmode="decimal"/></div>
+      <button class="btn btn-out" style="width:100%;padding:12px" id="closeBtn" onclick="closeShift()">⏹ Close Shift</button>
+    </div>
+    <div class="msg" id="shiftMsg"></div>
+  </div>
+
+  <!-- SALE -->
+  <div class="card">
+    <h2>💰 Record Fuel Sale</h2>
+    <div class="price-chips" id="priceChips"></div>
+    <div class="field"><label>Fuel Type</label>
+      <select id="sFuel" onchange="liveTotal()"><option>Diesel</option><option>Petrol</option></select></div>
+    <div class="field"><label>Liters</label><input type="number" id="sLiters" min="0" step="0.01" inputmode="decimal"/></div>
+    <div class="field"><label>Payment</label>
+      <select id="sPay" onchange="togglePayFields()">
+        <option value="cash">Cash</option><option value="telebirr">Telebirr</option>
+        <option value="cbe">CBE Birr</option><option value="credit">Credit</option>
+      </select></div>
+    <div class="field hidden" id="custField"><label>Credit Customer</label>
+      <select id="sCustomer"></select></div>
+    <div class="total-line" id="liveTotal">Total: 0.00 ETB</div>
+    <button class="btn btn-gold" id="saleBtn" onclick="submitSale()">✔ Record Sale</button>
+    <div class="msg" id="saleMsg"></div>
+  </div>
+
+  <div class="card">
+    <h2>🛢 Tank Levels</h2>
+    <div id="tankList" class="empty">Loading tanks...</div>
+  </div>
+
+  <div class="card">
+    <h2>📄 My Recent Sales</h2>
+    <table>
+      <thead><tr><th>Time</th><th>Fuel</th><th>Liters</th><th>Total ETB</th></tr></thead>
+      <tbody id="salesBody"><tr><td colspan="4" class="empty">Loading...</td></tr></tbody>
+    </table>
+  </div>
+
+</div>
+</div>
+
+<script src="config.js"></script>
+<script>
+let session=null, prices={};
+
+function logout(){localStorage.removeItem('magpms_staff');location.href='index.html';}
+function msg(id,text,type){const el=document.getElementById(id);el.textContent=text;el.className='msg '+type;}
+function esc(s){const d=document.createElement('div');d.textContent=s||'';return d.innerHTML;}
+
+function liveTotal(){
+  const l=parseFloat(document.getElementById('sLiters').value)||0;
+  const p=prices[document.getElementById('sFuel').value]||0;
+  document.getElementById('liveTotal').textContent='Total: '+(l*p).toFixed(2)+' ETB @ '+p+'/L';
+}
+document.getElementById('sLiters').addEventListener('input',liveTotal);
+
+function togglePayFields(){
+  const isCredit=document.getElementById('sPay').value==='credit';
+  document.getElementById('custField').classList.toggle('hidden',!isCredit);
+}
+
+async function loadPrices(){
+  try{
+    const r=await rpc('get_prices',{});
+    if(Array.isArray(r)){
+      r.forEach(p=>prices[p.fuel_type]=Number(p.price_per_liter));
+      document.getElementById('priceChips').innerHTML=r.map(p=>
+        `<span class="chip">${p.fuel_type}: ${Number(p.price_per_liter).toFixed(2)} ETB/L</span>`).join('');
+      liveTotal();
+    }
+  }catch(e){}
+}
+
+async function loadCustomers(){
+  try{
+    const r=await rpc('list_credit_customers',{});
+    const sel=document.getElementById('sCustomer');
+    if(Array.isArray(r)&&r.length){
+      sel.innerHTML=r.map(c=>`<option value="${c.id}">${esc(c.name)}${c.plate_no?' · '+esc(c.plate_no):''} (owes ${Number(c.balance).toFixed(0)} ETB)</option>`).join('');
+    }else{sel.innerHTML='<option value="">No credit customers — ask admin</option>';}
+  }catch(e){}
+}
+
+async function checkShift(){
+  try{
+    const r=await rpc('my_open_shift',{p_staff_id:session.id});
+    const banner=document.getElementById('shiftBanner');
+    const hasOpen=Array.isArray(r)&&r.length>0;
+    if(hasOpen){
+      const sh=r[0];
+      banner.className='shift-banner shift-open';
+      banner.textContent='✔ Shift OPEN since '+new Date(sh.opened_at).toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'})+' · opening meter '+sh.opening_meter+' L';
+      document.getElementById('openShiftForm').classList.add('hidden');
+      document.getElementById('closeShiftForm').classList.remove('hidden');
+    }else{
+      banner.className='shift-banner shift-none';
+      banner.textContent='⚠ No open shift — open one to record sales';
+      document.getElementById('openShiftForm').classList.remove('hidden');
+      document.getElementById('closeShiftForm').classList.add('hidden');
+    }
+  }catch(e){}
+}
+
+async function openShift(){
+  const m=parseFloat(document.getElementById('openMeter').value);
+  if(isNaN(m)||m<0){msg('shiftMsg','Enter opening meter reading','error');return;}
+  const btn=document.getElementById('openBtn');btn.disabled=true;
+  try{
+    const r=await rpc('open_shift',{p_staff_id:session.id,p_opening_meter:m});
+    msg('shiftMsg',r.message,r.success?'success':'error');
+    if(r.success)checkShift();
+  }catch(e){msg('shiftMsg','Connection error','error');}
+  finally{btn.disabled=false;}
+}
+
+async function closeShift(){
+  const m=parseFloat(document.getElementById('closeMeter').value);
+  if(isNaN(m)||m<0){msg('shiftMsg','Enter closing meter reading','error');return;}
+  const btn=document.getElementById('closeBtn');btn.disabled=true;
+  try{
+    const r=await rpc('close_shift',{p_staff_id:session.id,p_closing_meter:m});
+    msg('shiftMsg',r.message,r.success?'success':'error');
+    if(r.success){document.getElementById('closeMeter').value='';checkShift();}
+  }catch(e){msg('shiftMsg','Connection error','error');}
+  finally{btn.disabled=false;}
+}
+
+async function submitSale(){
+  const fuel=document.getElementById('sFuel').value;
+  const liters=parseFloat(document.getElementById('sLiters').value);
+  const pay=document.getElementById('sPay').value;
+  const cust=pay==='credit'?document.getElementById('sCustomer').value:null;
+  if(!liters||liters<=0){msg('saleMsg','Enter valid liters','error');return;}
+  if(pay==='credit'&&!cust){msg('saleMsg','Select a credit customer','error');return;}
+  const btn=document.getElementById('saleBtn');btn.disabled=true;btn.textContent='Saving...';
+  try{
+    const r=await rpc('record_sale_v2',{p_staff_id:session.id,p_fuel_type:fuel,p_liters:liters,p_payment:pay,p_credit_customer_id:cust});
+    msg('saleMsg',r.message+(r.total?(' — '+r.total+' ETB'):''),r.success?'success':'error');
+    if(r.success){document.getElementById('sLiters').value='';liveTotal();loadSales();loadTanks();if(pay==='credit')loadCustomers();}
+  }catch(e){msg('saleMsg','Connection error','error');}
+  finally{btn.disabled=false;btn.textContent='✔ Record Sale';}
+}
+
+async function loadTanks(){
+  try{
+    const tanks=await rpc('list_tanks',{});
+    if(!Array.isArray(tanks))return;
+    const el=document.getElementById('tankList');el.className='';
+    el.innerHTML=tanks.map(t=>{
+      const pct=Math.max(0,Math.min(100,(t.current_liters/t.capacity_liters)*100));
+      return `<div class="tank"><span>${t.tank_name} · ${t.fuel_type}</span>
+        <span class="mono">${Number(t.current_liters).toLocaleString()} L</span>
+        <span class="bar"><i style="width:${pct}%"></i></span></div>`;
+    }).join('');
+  }catch(e){}
+}
+
+async function loadSales(){
+  try{
+    const sales=await rpc('list_sales',{p_staff_id:session.id,p_limit:50});
+    const tb=document.getElementById('salesBody');
+    if(!Array.isArray(sales)||sales.length===0){tb.innerHTML='<tr><td colspan="4" class="empty">No sales yet</td></tr>';return;}
+    tb.innerHTML=sales.map(s=>{
+      const t=new Date(s.created_at).toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
+      return `<tr><td class="mono">${t}</td><td>${s.fuel_type}</td><td class="mono">${s.liters}</td><td class="mono">${Number(s.total_etb).toFixed(2)}</td></tr>`;
+    }).join('');
+  }catch(e){}
+}
+
+(function init(){
+  session=JSON.parse(localStorage.getItem('magpms_staff')||'null');
+  if(!session||!session.success){location.href='index.html';return;}
+  document.getElementById('whoami').textContent=session.full_name+' · '+session.role;
+  document.getElementById('loading').style.display='none';
+  document.getElementById('app').style.display='block';
+  checkShift();loadPrices();loadCustomers();loadTanks();loadSales();
+})();
+</script>
+</body>
+</html>
