@@ -1,6 +1,6 @@
- // MAGPMS CLOUD — Supabase config
-const SUPABASE_URL = "https://neozkhrjidiqfdyphpkk.supabase.co";
-const SUPABASE_ANON_KEY = "sb_publishable_wJYpopSRe7uLft91ZiSpSg_GTA-iwa8";
+// MAGPMS CLOUD — Supabase config
+const SUPABASE_URL = "https://vpakcpketkuuwmnmritg.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_dWTbItoNrx0zaAFXlHXzKA_Zp_kk2a9";
 
 async function rpc(fn, params){
   const res = await fetch(`${SUPABASE_URL}/rest/v1/rpc/${fn}`,{
