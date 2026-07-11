@@ -134,6 +134,58 @@ select option{background:var(--surface)}
     <div id="custList" class="empty">Loading...</div>
   </div>
 
+  <!-- REPORTS -->
+  <div class="card" id="printArea">
+    <h2 style="display:flex;justify-content:space-between;align-items:center">📊 Daily Report (last 7 days)
+      <button class="btn btn-blue no-print" onclick="printReport()">🖨 Print</button></h2>
+    <table>
+      <thead><tr><th>Day</th><th>Sales</th><th>Liters</th><th>Revenue</th><th>Expenses</th><th>Net ETB</th></tr></thead>
+      <tbody id="reportBody"><tr><td colspan="6" class="empty">Loading...</td></tr></tbody>
+    </table>
+    <div style="border-top:1px solid var(--border);margin:12px 0"></div>
+    <h2 style="margin-bottom:8px">🏆 Staff Performance (7 days)</h2>
+    <table>
+      <thead><tr><th>Staff</th><th>Sales</th><th>Liters</th><th>Revenue ETB</th></tr></thead>
+      <tbody id="staffRepBody"><tr><td colspan="4" class="empty">Loading...</td></tr></tbody>
+    </table>
+  </div>
+
+  <!-- EXPENSES -->
+  <div class="card">
+    <h2>💸 Expenses</h2>
+    <div class="grid2">
+      <div class="field"><label>Category</label>
+        <select id="exCat"><option>salary</option><option>electricity</option><option>maintenance</option><option>transport</option><option>other</option></select></div>
+      <div class="field"><label>Amount (ETB)</label><input type="number" id="exAmt" min="0" step="0.01" inputmode="decimal"/></div>
+    </div>
+    <div class="field"><label>Description</label><input type="text" id="exDesc"/></div>
+    <button class="btn btn-gold" id="exBtn" onclick="addExpense()">➕ Record Expense</button>
+    <div class="msg" id="exMsg"></div>
+    <div style="border-top:1px solid var(--border);margin:12px 0"></div>
+    <table>
+      <thead><tr><th>Date</th><th>Category</th><th>Description</th><th>ETB</th></tr></thead>
+      <tbody id="exBody"><tr><td colspan="4" class="empty">Loading...</td></tr></tbody>
+    </table>
+  </div>
+
+  <!-- ATTENDANCE -->
+  <div class="card">
+    <h2>🕐 Attendance Log</h2>
+    <table>
+      <thead><tr><th>Staff</th><th>Check In</th><th>Check Out</th><th>Hours</th></tr></thead>
+      <tbody id="attBody"><tr><td colspan="4" class="empty">Loading...</td></tr></tbody>
+    </table>
+  </div>
+
+  <!-- NOZZLE READINGS -->
+  <div class="card">
+    <h2>⛽ Nozzle Readings (latest 100)</h2>
+    <table>
+      <thead><tr><th>Staff</th><th>Nozzle</th><th>Fuel</th><th>Open</th><th>Close</th><th>Liters</th></tr></thead>
+      <tbody id="nrBody"><tr><td colspan="6" class="empty">Loading...</td></tr></tbody>
+    </table>
+  </div>
+
   <!-- SHIFTS -->
   <div class="card">
     <h2>🕒 Shifts</h2>
@@ -200,9 +252,16 @@ function renderStaff(){
       <h3>${esc(s.full_name)}</h3>
       <p>@${esc(s.username)}${s.phone?' · '+esc(s.phone):''} · ${esc(s.role)}</p>
       <span class="tag ${s.status}">${s.status}</span></div>
-    <div>
+    <div style="display:grid;gap:6px;justify-items:end">
+      <div>
       ${s.status!=='approved'?`<button class="btn btn-ok" onclick="setStatus('${s.id}','approved')">Approve</button> `:''}
       ${s.status!=='rejected'?`<button class="btn btn-no" onclick="setStatus('${s.id}','rejected')">Reject</button>`:''}
+      </div>
+      <select style="width:auto;padding:5px 9px;font-size:12px" onchange="setRole('${s.id}',this.value)">
+        <option value="operator" ${s.role==='operator'?'selected':''}>operator</option>
+        <option value="accountant" ${s.role==='accountant'?'selected':''}>accountant</option>
+        <option value="manager" ${s.role==='manager'?'selected':''}>manager</option>
+      </select>
     </div></div>`).join('');
 }
 async function setStatus(id,status){
@@ -306,14 +365,81 @@ async function loadSales(){
       tb.innerHTML='<tr><td colspan="6" class="empty">No sales yet</td></tr>';
       document.getElementById('stSales').textContent='0';
       document.getElementById('stRevenue').textContent='0';return;}
-    document.getElementById('stSales').textContent=sales.length;
-    const rev=sales.reduce((a,s)=>a+Number(s.total_etb||0),0);
+    const live=sales.filter(s=>!s.voided);
+    document.getElementById('stSales').textContent=live.length;
+    const rev=live.reduce((a,s)=>a+Number(s.total_etb||0),0);
     document.getElementById('stRevenue').textContent=rev.toLocaleString(undefined,{maximumFractionDigits:0});
     tb.innerHTML=sales.map(s=>{
       const t=new Date(s.created_at).toLocaleString('en-GB',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});
-      return `<tr><td class="mono">${t}</td><td>${esc(s.staff_name)}</td><td>${s.fuel_type}</td>
-        <td class="mono">${s.liters}</td><td class="mono">${Number(s.total_etb).toFixed(2)}</td><td>${esc(s.payment_method)}</td></tr>`;
+      const style=s.voided?' style="opacity:.4;text-decoration:line-through"':'';
+      const act=s.voided?'<span class="tag rejected">void</span>':`<button class="btn btn-no" style="padding:4px 9px;font-size:11px" onclick="voidSale('${s.id}')">Void</button>`;
+      return `<tr${style}><td class="mono">${t}</td><td>${esc(s.staff_name)}</td><td>${s.fuel_type}</td>
+        <td class="mono">${s.liters}</td><td class="mono">${Number(s.total_etb).toFixed(2)}</td><td>${esc(s.payment_method)} ${act}</td></tr>`;
     }).join('');
+  }catch(e){}
+}
+
+async function voidSale(id){
+  if(!confirm('Void this sale? Tank and credit balance will be reversed.'))return;
+  const r=await rpc('admin_void_sale',{p_admin_id:session.id,p_sale_id:id});
+  alert(r.message||'Done');
+  if(r.success){loadSales();loadTanks();loadCustomers();loadReports();}
+}
+
+/* ---- V3: ROLE ---- */
+async function setRole(staffId,role){
+  const r=await rpc('admin_set_staff_role',{p_admin_id:session.id,p_staff_id:staffId,p_role:role});
+  if(!r.success)alert(r.message||'Failed');
+  loadStaff();
+}
+
+/* ---- V3: EXPENSES ---- */
+async function addExpense(){
+  const cat=document.getElementById('exCat').value;
+  const amt=parseFloat(document.getElementById('exAmt').value);
+  const desc=document.getElementById('exDesc').value.trim();
+  if(!amt||amt<=0){msg('exMsg','Enter valid amount','error');return;}
+  const btn=document.getElementById('exBtn');btn.disabled=true;
+  try{
+    const r=await rpc('admin_add_expense',{p_admin_id:session.id,p_category:cat,p_description:desc,p_amount:amt});
+    msg('exMsg',r.message,r.success?'success':'error');
+    if(r.success){document.getElementById('exAmt').value='';document.getElementById('exDesc').value='';loadExpenses();loadReports();}
+  }catch(e){msg('exMsg','Connection error','error');}
+  finally{btn.disabled=false;}
+}
+async function loadExpenses(){
+  try{
+    const r=await rpc('list_expenses',{p_limit:50});
+    const tb=document.getElementById('exBody');
+    if(!Array.isArray(r)||r.length===0){tb.innerHTML='<tr><td colspan="4" class="empty">No expenses yet</td></tr>';return;}
+    tb.innerHTML=r.map(e=>{
+      const t=new Date(e.created_at).toLocaleDateString('en-GB',{day:'2-digit',month:'2-digit'});
+      return `<tr><td class="mono">${t}</td><td>${esc(e.category)}</td><td>${esc(e.description||'')}</td><td class="mono">${Number(e.amount_etb).toFixed(2)}</td></tr>`;
+    }).join('');
+  }catch(e){}
+}
+
+/* ---- V3: REPORTS ---- */
+async function loadReports(){
+  try{
+    const days=await rpc('daily_report',{p_days:7});
+    const tb=document.getElementById('reportBody');
+    if(Array.isArray(days)&&days.length){
+      tb.innerHTML=days.map(d=>{
+        const dt=new Date(d.day).toLocaleDateString('en-GB',{weekday:'short',day:'2-digit',month:'2-digit'});
+        const net=Number(d.net_etb);
+        return `<tr><td>${dt}</td><td class="mono">${d.sales_count}</td><td class="mono">${Number(d.liters).toFixed(1)}</td>
+          <td class="mono">${Number(d.revenue_etb).toFixed(2)}</td><td class="mono">${Number(d.expenses_etb).toFixed(2)}</td>
+          <td class="mono" style="color:${net>=0?'var(--success)':'var(--danger)'}">${net.toFixed(2)}</td></tr>`;
+      }).join('');
+    }else{tb.innerHTML='<tr><td colspan="6" class="empty">No data</td></tr>';}
+
+    const staff=await rpc('staff_report',{p_days:7});
+    const sb=document.getElementById('staffRepBody');
+    if(Array.isArray(staff)&&staff.length){
+      sb.innerHTML=staff.map(s=>`<tr><td>${esc(s.staff_name)}</td><td class="mono">${s.sales_count}</td>
+        <td class="mono">${Number(s.liters).toFixed(1)}</td><td class="mono">${Number(s.revenue_etb).toFixed(2)}</td></tr>`).join('');
+    }else{sb.innerHTML='<tr><td colspan="4" class="empty">No data</td></tr>';}
   }catch(e){}
 }
 
@@ -323,8 +449,52 @@ async function loadSales(){
   document.getElementById('whoami').textContent=session.full_name;
   document.getElementById('loading').style.display='none';
   document.getElementById('app').style.display='block';
-  loadPrices();loadStaff();loadTanks();loadCustomers();loadShifts();loadSales();
+  loadPrices();loadStaff();loadTanks();loadCustomers();loadShifts();loadSales();loadExpenses();loadReports();
+  loadAttendance();loadReadings();
 })();
+
+/* ---- V4: ATTENDANCE ---- */
+async function loadAttendance(){
+  try{
+    const r=await rpc('admin_list_attendance',{p_limit:100});
+    const tb=document.getElementById('attBody');
+    if(!Array.isArray(r)||r.length===0){tb.innerHTML='<tr><td colspan="4" class="empty">No attendance yet</td></tr>';return;}
+    tb.innerHTML=r.map(a=>{
+      const ci=new Date(a.check_in);
+      const co=a.check_out?new Date(a.check_out):null;
+      const hrs=co?((co-ci)/3600000).toFixed(1)+' h':'<span class="tag open">on duty</span>';
+      const f=d=>d.toLocaleString('en-GB',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});
+      return `<tr><td>${esc(a.staff_name)}</td><td class="mono">${f(ci)}</td>
+        <td class="mono">${co?f(co):'—'}</td><td class="mono">${hrs}</td></tr>`;
+    }).join('');
+  }catch(e){}
+}
+
+/* ---- V4: NOZZLE READINGS ---- */
+async function loadReadings(){
+  try{
+    const r=await rpc('admin_list_readings',{p_limit:100});
+    const tb=document.getElementById('nrBody');
+    if(!Array.isArray(r)||r.length===0){tb.innerHTML='<tr><td colspan="6" class="empty">No readings yet</td></tr>';return;}
+    tb.innerHTML=r.map(x=>`<tr><td>${esc(x.staff_name)}</td><td>${x.nozzle_name}</td><td>${x.fuel_type}</td>
+      <td class="mono">${x.opening}</td><td class="mono">${x.closing??'—'}</td>
+      <td class="mono">${x.liters!=null?Number(x.liters).toFixed(1):'—'}</td></tr>`).join('');
+  }catch(e){}
+}
+
+/* ---- V4: PRINT ---- */
+function printReport(){window.print();}
+const printCss=document.createElement('style');
+printCss.textContent=`@media print{
+  body{background:#fff;color:#000}
+  header,.stats,.card:not(#printArea),.no-print{display:none!important}
+  #printArea{border:none;box-shadow:none;background:#fff;color:#000}
+  #printArea h2{color:#000}
+  th{color:#333}td,th{border-bottom:1px solid #999}
+  .mono{color:#000}
+}`;
+document.head.appendChild(printCss);
 </script>
 </body>
 </html>
+
