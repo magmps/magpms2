@@ -1,37 +1,192 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
 <meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<title>MAGPMS — Admin</title>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=JetBrains+Mono:wght@400;500&family=Inter:wght@300;400;500&display=swap" rel="stylesheet"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover"/>
+<meta name="theme-color" content="#0e1520"/>
+<title>MAGPMS — Admin Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet"/>
 <style>
-:root{--bg:#080c14;--surface:#0e1520;--border:#1c2a3e;--accent:#f59e0b;--accent2:#0ea5e9;
-  --danger:#ef4444;--success:#22c55e;--purple:#a78bfa;--txt:#e2e8f0;--muted:#64748b;}
+/* ============================================================
+   MAGPMS Cloud — fuel station design system
+   Shared by index.html, staff.html, admin.html.
+   Dark is the default theme; [data-theme="light"] switches,
+   [data-theme="auto"] follows the system.
+   Variable names match the original pages so existing inline
+   styles (var(--success) etc.) keep working.
+   ============================================================ */
+
+:root{
+  --bg:#080c14; --surface:#0e1520; --surface2:#131c2b; --border:#1c2a3e;
+  --accent:#f59e0b; --accent2:#0ea5e9; --danger:#ef4444; --success:#22c55e;
+  --purple:#a78bfa; --txt:#e2e8f0; --muted:#64748b;
+  --accent-soft:rgba(245,158,11,.12); --accent2-soft:rgba(14,165,233,.12);
+  --danger-soft:rgba(239,68,68,.12); --success-soft:rgba(34,197,94,.12);
+  --btn-dark-ink:#000;
+  --shadow:0 10px 34px rgba(0,0,0,.45);
+  --radius:18px; --radius-sm:10px;
+  --sidebar-w:280px; --bottomnav-h:58px;
+}
+[data-theme="light"]{
+  --bg:#f2f5fa; --surface:#ffffff; --surface2:#e9eef6; --border:#d6deea;
+  --txt:#16233a; --muted:#5b6b82;
+  --accent:#d97706; --accent2:#0284c7;
+  --accent-soft:rgba(217,119,6,.12); --accent2-soft:rgba(2,132,199,.12);
+  --shadow:0 10px 30px rgba(22,35,58,.12);
+}
+@media (prefers-color-scheme: light){
+  [data-theme="auto"]{
+    --bg:#f2f5fa; --surface:#ffffff; --surface2:#e9eef6; --border:#d6deea;
+    --txt:#16233a; --muted:#5b6b82;
+    --accent:#d97706; --accent2:#0284c7;
+    --accent-soft:rgba(217,119,6,.12); --accent2-soft:rgba(2,132,199,.12);
+    --shadow:0 10px 30px rgba(22,35,58,.12);
+  }
+}
+
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-body{background:var(--bg);color:var(--txt);font-family:'Inter',sans-serif;font-size:15px;min-height:100vh}
-header{background:var(--surface);border-bottom:1px solid var(--border);padding:14px 18px;
-  display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:10}
-header h1{font-family:'Syne',sans-serif;font-size:17px}
-header h1 small{display:block;font-size:10px;color:var(--muted);font-weight:400}
-.btn{padding:8px 14px;border:none;border-radius:9px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit}
-.btn-out{background:var(--danger);color:#fff}
-.btn-ok{background:var(--success);color:#000;padding:6px 12px;font-size:12px}
-.btn-no{background:var(--danger);color:#fff;padding:6px 12px;font-size:12px}
-.btn-gold{background:var(--accent);color:#000;width:100%;padding:11px;font-size:13.5px}
-.btn-blue{background:var(--accent2);color:#000;padding:6px 12px;font-size:12px}
-.btn:disabled{opacity:.5}
-.wrap{max-width:860px;margin:0 auto;padding:18px 16px 40px;display:grid;gap:16px}
-.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
-.stat{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:14px;text-align:center}
-.stat .n{font-family:'JetBrains Mono',monospace;font-size:22px;font-weight:700;color:var(--accent)}
-.stat .l{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-top:2px}
-.card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:18px}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--txt);font-family:'Inter',system-ui,sans-serif;
+  font-size:15px;line-height:1.55;min-height:100vh;-webkit-tap-highlight-color:transparent}
+h1.display{font-family:'Syne',sans-serif;font-weight:800;font-size:clamp(30px,7vw,44px);letter-spacing:-.02em}
+.sub{color:var(--muted);margin-top:4px}
+.mono{font-family:'JetBrains Mono',monospace;font-size:12px}
+.hidden{display:none!important}
+.muted{color:var(--muted)}
+
+/* ---------- Topbar ---------- */
+header{background:var(--surface);border-bottom:1px solid var(--border);padding:11px 16px;
+  display:flex;justify-content:space-between;align-items:center;gap:10px;
+  position:sticky;top:0;z-index:30}
+header .brand{font-family:'Syne',sans-serif;font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+header .brand small{display:block;font-size:10px;color:var(--muted);font-weight:400}
+header .h-actions{display:flex;align-items:center;gap:8px;flex:none}
+.menu-btn{background:var(--surface2);border:1px solid var(--border);color:var(--txt);
+  border-radius:var(--radius-sm);padding:9px 13px;font-size:16px;cursor:pointer}
+.theme-btn{background:var(--surface2);border:1px solid var(--border);color:var(--txt);
+  border-radius:var(--radius-sm);padding:9px 12px;font-size:15px;cursor:pointer;line-height:1}
+
+/* ---------- Sidebar / drawer ---------- */
+#sideMenu{position:fixed;top:0;left:calc(-1 * var(--sidebar-w) - 12px);width:var(--sidebar-w);height:100vh;
+  height:100dvh;background:var(--surface);border-right:1px solid var(--border);z-index:60;
+  transition:left .25s;padding:20px 14px;overflow-y:auto}
+#sideMenu.open{left:0}
+#menuOverlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:50;display:none}
+#menuOverlay.show{display:block}
+.menu-head{display:flex;align-items:center;gap:12px;padding:8px 10px 20px}
+.menu-logo{width:52px;height:52px;border-radius:50%;border:2.5px solid var(--accent);
+  display:grid;place-items:center;font-size:22px;flex:none}
+.menu-title{font-family:'Syne',sans-serif;font-weight:800;font-size:17px;letter-spacing:.04em}
+.menu-sub{font-size:11px;color:var(--muted)}
+.mi{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:12px;cursor:pointer;
+  font-size:14.5px;color:var(--txt);border-left:3px solid transparent;margin-bottom:3px;user-select:none}
+.mi:hover,.mi.active{background:var(--surface2);border-left-color:var(--accent)}
+.mi span.ic{font-size:19px;width:24px;text-align:center}
+
+/* ---------- Bottom quick-nav (mobile only) ---------- */
+.bottom-nav{position:fixed;left:0;right:0;bottom:0;z-index:40;display:flex;
+  background:var(--surface);border-top:1px solid var(--border);
+  height:calc(var(--bottomnav-h) + env(safe-area-inset-bottom));padding-bottom:env(safe-area-inset-bottom)}
+.bn-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;
+  background:transparent;border:0;color:var(--muted);font-size:10.5px;font-weight:600;
+  font-family:inherit;cursor:pointer;padding:5px 0}
+.bn-item .ic{font-size:19px;line-height:1.2}
+.bn-item.active{color:var(--accent)}
+
+/* ---------- Layout / desktop ---------- */
+.wrap{max-width:900px;margin:0 auto;padding:18px 16px calc(var(--bottomnav-h) + 40px)}
+@media (min-width:900px){
+  body.has-sidebar{padding-left:var(--sidebar-w)}
+  #sideMenu{left:0!important}
+  #menuOverlay{display:none!important}
+  .menu-btn{display:none}
+  .bottom-nav{display:none}
+  .wrap{padding:26px 28px 60px;max-width:980px}
+}
+
+/* ---------- Sections ---------- */
+.section{display:none}
+.section.show{display:block;animation:fadeUp .25s ease}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+
+/* ---------- Clock / notice ---------- */
+.clock{background:var(--surface);border:1px solid var(--border);border-radius:14px;
+  padding:12px 16px;display:inline-block;font-family:'JetBrains Mono',monospace;margin-top:16px}
+.clock .d{color:var(--accent);font-size:14px}
+.clock .t{color:var(--muted);font-size:13px;text-align:right;margin-top:2px}
+.notice{display:flex;gap:12px;align-items:center;background:var(--accent2-soft);
+  border:1px solid var(--accent2);border-radius:16px;padding:13px 16px;margin-top:16px;
+  color:var(--accent2);font-size:14px}
+.notice b{color:var(--txt)}
+
+/* ---------- Stat cards ---------- */
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:20px}
+@media (min-width:700px){.stats{grid-template-columns:repeat(4,1fr)}}
+.scard{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+  padding:18px 16px;position:relative;overflow:hidden}
+.scard::after{content:"";position:absolute;top:-38px;right:-38px;width:120px;height:120px;border-radius:50%;
+  background:rgba(128,128,128,.06)}
+.scard .em{font-size:26px}
+.scard .lbl{color:var(--muted);font-size:11px;letter-spacing:.13em;text-transform:uppercase;margin-top:10px}
+.scard .val{font-family:'Syne',sans-serif;font-weight:800;font-size:clamp(22px,6vw,30px);margin-top:6px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.scard .unit{color:var(--muted);font-size:12.5px;margin-top:6px}
+.v-gold{color:var(--accent)}.v-blue{color:var(--accent2)}.v-purple{color:var(--purple)}.v-green{color:var(--success)}
+.scard.hl{border-color:var(--accent)}
+.badge-low{display:inline-block;margin-left:8px;padding:2px 9px;border-radius:99px;font-size:10px;
+  font-weight:700;background:var(--danger-soft);color:var(--danger);vertical-align:middle;
+  font-family:'JetBrains Mono',monospace}
+
+/* ---------- Cards ---------- */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+  padding:18px;margin-top:16px;box-shadow:var(--shadow)}
 .card h2{font-family:'Syne',sans-serif;font-size:15px;margin-bottom:12px;color:var(--accent)}
+.card-tools{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:12px}
+.card-tools input{flex:1;min-width:140px}
+.divider{border-top:1px solid var(--border);margin:12px 0}
+
+/* ---------- Forms ---------- */
+.field{display:grid;gap:5px;margin-bottom:11px}
+label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+input,select,textarea{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-sm);
+  color:var(--txt);font-size:14px;padding:10px 13px;width:100%;font-family:inherit;outline:none;
+  transition:border-color .15s, box-shadow .15s}
+input:focus,select:focus,textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+select option{background:var(--surface);color:var(--txt)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.field-hint{font-size:11px;color:var(--muted);text-align:center;font-family:'JetBrains Mono',monospace}
+
+/* ---------- Buttons ---------- */
+.btn{padding:9px 14px;border:none;border-radius:var(--radius-sm);font-size:13px;font-weight:600;
+  cursor:pointer;font-family:inherit;transition:opacity .15s, transform .05s}
+.btn:hover{opacity:.88}
+.btn:active{transform:translateY(1px)}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.btn-gold{background:var(--accent);color:var(--btn-dark-ink);width:100%;padding:12px;font-size:14px}
+.btn-blue{background:var(--accent2);color:var(--btn-dark-ink);padding:6px 12px;font-size:12px}
+.btn-ok{background:var(--success);color:var(--btn-dark-ink);padding:6px 12px;font-size:12px}
+.btn-no{background:var(--danger);color:#fff;padding:6px 12px;font-size:12px}
+.btn-out{background:var(--danger);color:#fff}
+.btn-ghost{background:var(--surface2);border:1px solid var(--border);color:var(--txt)}
+
+/* ---------- Tabs & chips ---------- */
 .tabs{display:flex;gap:7px;margin-bottom:13px;flex-wrap:wrap}
 .tab{padding:6px 14px;border-radius:99px;border:1px solid var(--border);background:transparent;
   color:var(--muted);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit}
-.tab.active{background:var(--accent);color:#000;border-color:var(--accent)}
+.tab.active{background:var(--accent);color:var(--btn-dark-ink);border-color:var(--accent)}
+.price-chips{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap}
+.chip{background:var(--bg);border:1px solid var(--border);border-radius:99px;padding:5px 13px;
+  font-size:12px;font-family:'JetBrains Mono',monospace;color:var(--accent2)}
+.qbtns{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:11px}
+.qbtn{background:var(--surface2);border:1px solid var(--border);border-radius:99px;color:var(--txt);
+  font-size:12.5px;font-weight:600;padding:6px 13px;cursor:pointer;font-family:'JetBrains Mono',monospace}
+.qbtn:hover{border-color:var(--accent);color:var(--accent)}
+.seg{display:flex;background:var(--surface2);border-radius:var(--radius-sm);padding:3px;gap:3px;margin-bottom:11px}
+.seg button{flex:1;border:0;padding:8px;border-radius:8px;background:transparent;color:var(--muted);
+  font-weight:600;font-size:12.5px;cursor:pointer;font-family:inherit}
+.seg button.active{background:var(--surface);color:var(--txt);box-shadow:0 1px 4px rgba(0,0,0,.25)}
+
+/* ---------- Rows / lists ---------- */
 .row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:11px 0;
   border-bottom:1px solid var(--border);flex-wrap:wrap}
 .row:last-child{border-bottom:none}
@@ -39,53 +194,183 @@ header h1 small{display:block;font-size:10px;color:var(--muted);font-weight:400}
 .row .info p{font-size:11.5px;color:var(--muted)}
 .tag{display:inline-block;padding:2px 9px;border-radius:99px;font-size:10.5px;font-weight:700;
   font-family:'JetBrains Mono',monospace;margin-top:3px}
-.tag.pending{background:rgba(245,158,11,.15);color:var(--accent)}
-.tag.approved{background:rgba(34,197,94,.15);color:var(--success)}
-.tag.rejected{background:rgba(239,68,68,.15);color:var(--danger)}
-.tag.open{background:rgba(14,165,233,.15);color:var(--accent2)}
+.tag.pending{background:var(--accent-soft);color:var(--accent)}
+.tag.approved{background:var(--success-soft);color:var(--success)}
+.tag.rejected{background:var(--danger-soft);color:var(--danger)}
+.tag.open{background:var(--accent2-soft);color:var(--accent2)}
 .tag.closed{background:rgba(100,116,139,.2);color:var(--muted)}
-.tank{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--border);font-size:13px;gap:8px;flex-wrap:wrap}
+.empty{color:var(--muted);text-align:center;padding:20px 0;font-size:13px}
+
+/* ---------- Tanks ---------- */
+.tank{display:flex;justify-content:space-between;align-items:center;padding:9px 0;
+  border-bottom:1px solid var(--border);font-size:13px;gap:8px;flex-wrap:wrap}
 .tank:last-child{border-bottom:none}
 .bar{width:110px;height:7px;border-radius:99px;background:var(--border);overflow:hidden}
-.bar i{display:block;height:100%;background:var(--accent2)}
-.mono{font-family:'JetBrains Mono',monospace;font-size:12px}
+.bar i{display:block;height:100%;background:var(--accent2);border-radius:99px;transition:width .4s}
+.bar i.lvl-warn{background:var(--accent)}
+.bar i.lvl-low{background:var(--danger)}
+
+/* ---------- Tables ---------- */
+.table-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
 table{width:100%;border-collapse:collapse;font-size:12.5px}
-th{color:var(--muted);text-align:left;font-size:10px;text-transform:uppercase;padding:6px 8px;border-bottom:1px solid var(--border)}
+th{color:var(--muted);text-align:left;font-size:10px;text-transform:uppercase;padding:6px 8px;
+  border-bottom:1px solid var(--border);white-space:nowrap}
 td{padding:8px;border-bottom:1px solid var(--border)}
-.empty{color:var(--muted);text-align:center;padding:20px 0;font-size:13px}
-.field{display:grid;gap:5px;margin-bottom:11px}
-label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
-input,select{background:var(--bg);border:1px solid var(--border);border-radius:10px;color:var(--txt);
-  font-size:14px;padding:10px 13px;width:100%;font-family:inherit;outline:none}
-input:focus,select:focus{border-color:var(--accent)}
-select option{background:var(--surface)}
-.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+tr:last-child td{border-bottom:none}
+
+/* ---------- Messages / transactions ---------- */
 .msg{padding:9px 12px;border-radius:9px;font-size:13px;display:none;margin-top:8px}
-.msg.error{background:rgba(239,68,68,.12);color:var(--danger);display:block}
-.msg.success{background:rgba(34,197,94,.12);color:var(--success);display:block}
+.msg.error{background:var(--danger-soft);color:var(--danger);display:block}
+.msg.success{background:var(--success-soft);color:var(--success);display:block}
+.tx{display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:1px solid var(--border)}
+.tx:last-child{border-bottom:none}
+.tx .l h4{font-size:13.5px}
+.tx .l p{font-size:11px;color:var(--muted);margin-top:2px}
+.tx .amt{font-family:'JetBrains Mono',monospace;font-weight:700;color:var(--success);font-size:13.5px}
+.total-line{font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--success);text-align:right;margin-top:8px}
+.shift-banner{border-radius:12px;padding:12px 14px;font-size:13px;margin-bottom:12px;
+  font-family:'JetBrains Mono',monospace;border:1px solid}
+.shift-open{background:var(--success-soft);border-color:var(--success);color:var(--success)}
+.shift-none{background:var(--accent-soft);border-color:var(--accent);color:var(--accent)}
+.refresh-line{display:flex;align-items:center;gap:10px;margin-top:14px;font-size:11.5px;
+  color:var(--muted);font-family:'JetBrains Mono',monospace}
+.refresh-line button{background:none;border:none;color:var(--accent2);cursor:pointer;font:inherit;text-decoration:underline}
+
+/* ---------- Connection banner ---------- */
+#netBanner{position:fixed;top:0;left:0;right:0;z-index:90;background:var(--danger);color:#fff;
+  text-align:center;font-size:12.5px;font-weight:600;padding:7px 12px;display:none}
+#netBanner.show{display:block}
+
+/* ---------- Modal ---------- */
+.modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:80;display:none;
+  align-items:flex-end;justify-content:center}
+.modal-backdrop.open{display:flex}
+.modal{background:var(--surface);border:1px solid var(--border);width:100%;max-height:85dvh;overflow-y:auto;
+  border-radius:var(--radius) var(--radius) 0 0;padding:20px 18px calc(24px + env(safe-area-inset-bottom));
+  animation:fadeUp .2s ease}
+@media (min-width:640px){
+  .modal-backdrop{align-items:center;padding:24px}
+  .modal{max-width:420px;border-radius:var(--radius)}
+}
+.modal h3{font-family:'Syne',sans-serif;font-size:16px;margin-bottom:8px}
+.modal p{color:var(--muted);font-size:13.5px}
+.modal .m-actions{display:flex;gap:10px;margin-top:16px}
+.modal .m-actions .btn{flex:1;padding:11px;font-size:13.5px}
+
+/* ---------- Toast ---------- */
+#toastHost{position:fixed;left:50%;transform:translateX(-50%);z-index:95;display:flex;
+  flex-direction:column;gap:8px;align-items:center;pointer-events:none;
+  bottom:calc(var(--bottomnav-h) + 16px + env(safe-area-inset-bottom))}
+@media (min-width:900px){#toastHost{bottom:24px}}
+.toast{background:var(--txt);color:var(--bg);padding:9px 17px;border-radius:99px;font-weight:600;
+  font-size:13.5px;box-shadow:var(--shadow);animation:fadeUp .2s ease;max-width:90vw}
+.toast.err{background:var(--danger);color:#fff}
+.toast.ok{background:var(--success);color:var(--btn-dark-ink)}
+
+/* ---------- Login (index) ---------- */
+#loginPage{min-height:100vh;min-height:100dvh;display:grid;place-items:center;padding:20px;
+  background:radial-gradient(ellipse 80% 60% at 50% -10%,var(--accent-soft) 0%,transparent 70%),
+  radial-gradient(ellipse 60% 50% at 80% 100%,var(--accent2-soft) 0%,transparent 60%),var(--bg)}
+.login-wrap{width:min(400px,92vw);animation:fadeUp .5s ease both}
+.login-brand{text-align:center;margin-bottom:22px}
+.logo-ring{width:72px;height:72px;margin:0 auto 14px;border-radius:50%;border:2.5px solid var(--accent);
+  display:grid;place-items:center;font-size:26px;box-shadow:0 0 40px var(--accent-soft)}
+.login-brand h1{font-family:'Syne',sans-serif;font-size:26px;font-weight:800;letter-spacing:-.02em}
+.login-brand p{color:var(--muted);font-size:11px;margin-top:3px}
+.cloud-tag{display:inline-flex;align-items:center;gap:5px;background:var(--accent2-soft);
+  border:1px solid var(--accent2);border-radius:99px;padding:3px 12px;font-size:11px;
+  color:var(--accent2);margin-top:8px;font-family:'JetBrains Mono',monospace}
+.login-card{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:24px;
+  display:grid;gap:13px;box-shadow:var(--shadow)}
+.role-tabs{display:flex;gap:8px}
+.role-tab{flex:1;padding:10px;border:1.5px solid var(--border);border-radius:var(--radius-sm);
+  background:transparent;color:var(--muted);font-size:13px;font-weight:600;cursor:pointer;
+  text-align:center;transition:all .2s;font-family:inherit}
+.role-tab.active{border-color:var(--accent);background:var(--accent-soft);color:var(--accent)}
+.switch-link{text-align:center;font-size:12px;color:var(--muted)}
+.switch-link a{color:var(--accent2);cursor:pointer;text-decoration:underline}
+.login-theme{position:fixed;top:14px;right:14px;z-index:10}
+
+/* ---------- Loading ---------- */
 #loading{display:grid;place-items:center;height:100vh;color:var(--muted)}
-@media(max-width:560px){.stats{grid-template-columns:repeat(2,1fr)}.grid2{grid-template-columns:1fr}}
+
+/* ---------- Print ---------- */
+@media print{
+  body{background:#fff;color:#000;padding-left:0!important}
+  header,.menu-btn,.no-print,#sideMenu,.bottom-nav,#toastHost,#netBanner,
+  .card:not(#printArea){display:none!important}
+  #printArea{border:none;background:#fff;color:#000;box-shadow:none}
+  #printArea h2{color:#000}
+  th{color:#333}
+  td,th{border-bottom:1px solid #999}
+  .mono{color:#000}
+}
+
 </style>
 </head>
 <body>
 <div id="loading">Loading...</div>
 <div id="app" style="display:none">
+
 <header>
-  <h1>🛡 MAGPMS Admin<small id="whoami"></small></h1>
-  <button class="btn btn-out" onclick="logout()">Log Out</button>
+  <button class="menu-btn" onclick="toggleMenu()">☰</button>
+  <div class="brand">⛽ MAGPMS<small id="whoami"></small></div>
+  <div class="h-actions">
+    <button class="theme-btn" id="themeBtn" aria-label="Switch theme">🌙</button>
+    <button class="btn btn-out" onclick="logout()">Log Out</button>
+  </div>
 </header>
+
+<div id="menuOverlay" onclick="toggleMenu()"></div>
+<nav id="sideMenu">
+  <div class="menu-head">
+    <div class="menu-logo">⛽</div>
+    <div><div class="menu-title">MAGPMS</div>
+    <div class="menu-sub">Fuel Station Cloud</div></div>
+  </div>
+  <div class="mi active" data-s="dashboard" onclick="go('dashboard',this)"><span class="ic">📊</span> Dashboard</div>
+  <div class="mi" data-s="prices" onclick="go('prices',this)"><span class="ic">💲</span> Fuel Prices</div>
+  <div class="mi" data-s="staff" onclick="go('staff',this)"><span class="ic">👥</span> User Accounts</div>
+  <div class="mi" data-s="tanks" onclick="go('tanks',this)"><span class="ic">🛢</span> Tanks &amp; Delivery</div>
+  <div class="mi" data-s="credit" onclick="go('credit',this)"><span class="ic">🧾</span> Credit Customers</div>
+  <div class="mi" data-s="sales" onclick="go('sales',this)"><span class="ic">💰</span> Sales</div>
+  <div class="mi" data-s="expenses" onclick="go('expenses',this)"><span class="ic">💸</span> Expenses</div>
+  <div class="mi" data-s="reports" onclick="go('reports',this)"><span class="ic">📈</span> Staff Report</div>
+  <div class="mi" data-s="shifts" onclick="go('shifts',this)"><span class="ic">🕒</span> Shifts &amp; Attendance</div>
+</nav>
+
 <div class="wrap">
 
+<!-- ================= DASHBOARD ================= -->
+<div class="section show" id="sec-dashboard">
+  <h1 class="display">Dashboard</h1>
+  <div class="sub">Live station overview</div>
+
+  <div class="clock"><div class="d" id="clockDate">—</div><div class="t" id="clockTime">—</div></div>
+
   <div class="stats">
-    <div class="stat"><div class="n" id="stPending">0</div><div class="l">Pending</div></div>
-    <div class="stat"><div class="n" id="stApproved">0</div><div class="l">Approved</div></div>
-    <div class="stat"><div class="n" id="stSales">0</div><div class="l">Sales</div></div>
-    <div class="stat"><div class="n" id="stRevenue">0</div><div class="l">ETB Total</div></div>
+    <div class="scard"><div class="em">💰</div><div class="lbl">Total Sales</div>
+      <div class="val v-gold" id="dTotalSales">0</div><div class="unit">ETB</div></div>
+    <div class="scard"><div class="em">🛢</div><div class="lbl">Fuel Stock<span class="badge-low hidden" id="dStockBadge">LOW</span></div>
+      <div class="val v-blue" id="dFuelStock">0</div><div class="unit">Liters</div></div>
+    <div class="scard"><div class="em">💳</div><div class="lbl">Credit Balance</div>
+      <div class="val v-purple" id="dCredit">0</div><div class="unit">ETB</div></div>
+    <div class="scard hl"><div class="em">👷</div><div class="lbl">Employees</div>
+      <div class="val v-green" id="dOnDuty">0</div><div class="unit">On Duty Now</div></div>
   </div>
 
-  <!-- PRICES -->
+  <div class="refresh-line"><span id="updStamp">—</span><button onclick="refreshAll()">↻ Refresh now</button></div>
+
   <div class="card">
-    <h2>💲 Fuel Prices (ETB / Liter)</h2>
+    <h2>Recent Transactions</h2>
+    <div id="recentTx"><div class="empty">Loading...</div></div>
+  </div>
+</div>
+
+<!-- ================= PRICES ================= -->
+<div class="section" id="sec-prices">
+  <h1 class="display">Prices</h1><div class="sub">Fuel price management (ETB / liter)</div>
+  <div class="card">
     <div class="grid2">
       <div class="field"><label>Diesel</label><input type="number" id="prDiesel" step="0.01" min="0" inputmode="decimal"/></div>
       <div class="field"><label>Petrol</label><input type="number" id="prPetrol" step="0.01" min="0" inputmode="decimal"/></div>
@@ -93,10 +378,15 @@ select option{background:var(--surface)}
     <button class="btn btn-gold" id="priceBtn" onclick="savePrices()">💾 Update Prices</button>
     <div class="msg" id="priceMsg"></div>
   </div>
+</div>
 
-  <!-- STAFF -->
+<!-- ================= STAFF ================= -->
+<div class="section" id="sec-staff">
+  <h1 class="display">Accounts</h1><div class="sub">Staff approval &amp; roles</div>
   <div class="card">
-    <h2>👥 Staff Accounts</h2>
+    <div class="card-tools">
+      <input type="search" id="staffSearch" placeholder="🔍 Search name or username…" oninput="renderStaff()"/>
+    </div>
     <div class="tabs">
       <button class="tab active" onclick="setFilter('pending',this)">Pending</button>
       <button class="tab" onclick="setFilter('approved',this)">Approved</button>
@@ -105,12 +395,14 @@ select option{background:var(--surface)}
     </div>
     <div id="staffList" class="empty">Loading...</div>
   </div>
+</div>
 
-  <!-- TANKS + DELIVERY -->
+<!-- ================= TANKS ================= -->
+<div class="section" id="sec-tanks">
+  <h1 class="display">Tanks</h1><div class="sub">Levels &amp; fuel deliveries</div>
   <div class="card">
-    <h2>🛢 Tanks &amp; Fuel Delivery</h2>
     <div id="tankList" class="empty">Loading...</div>
-    <div style="border-top:1px solid var(--border);margin:12px 0"></div>
+    <div class="divider"></div>
     <div class="grid2">
       <div class="field"><label>Tank</label><select id="dvTank"></select></div>
       <div class="field"><label>Liters Delivered</label><input type="number" id="dvLiters" min="0" step="1" inputmode="numeric"/></div>
@@ -118,41 +410,52 @@ select option{background:var(--surface)}
     <button class="btn btn-gold" id="dvBtn" onclick="recordDelivery()">🚚 Record Delivery</button>
     <div class="msg" id="dvMsg"></div>
   </div>
+</div>
 
-  <!-- CREDIT CUSTOMERS -->
+<!-- ================= CREDIT ================= -->
+<div class="section" id="sec-credit">
+  <h1 class="display">Credit</h1><div class="sub">Credit customers &amp; payments</div>
   <div class="card">
-    <h2>🧾 Credit Customers</h2>
     <div class="grid2">
       <div class="field"><label>Name</label><input type="text" id="ccName"/></div>
       <div class="field"><label>Phone</label><input type="text" id="ccPhone" placeholder="09xxxxxxxx"/></div>
       <div class="field"><label>Plate No</label><input type="text" id="ccPlate"/></div>
-      <div class="field"><label>Credit Limit (ETB, 0 = unlimited)</label><input type="number" id="ccLimit" min="0" step="1" value="0"/></div>
+      <div class="field"><label>Credit Limit (0 = unlimited)</label><input type="number" id="ccLimit" min="0" step="1" value="0"/></div>
     </div>
     <button class="btn btn-gold" id="ccBtn" onclick="addCustomer()">➕ Add Customer</button>
     <div class="msg" id="ccMsg"></div>
-    <div style="border-top:1px solid var(--border);margin:12px 0"></div>
+    <div class="divider"></div>
     <div id="custList" class="empty">Loading...</div>
   </div>
+</div>
 
-  <!-- REPORTS -->
-  <div class="card" id="printArea">
-    <h2 style="display:flex;justify-content:space-between;align-items:center">📊 Daily Report (last 7 days)
-      <button class="btn btn-blue no-print" onclick="printReport()">🖨 Print</button></h2>
-    <table>
-      <thead><tr><th>Day</th><th>Sales</th><th>Liters</th><th>Revenue</th><th>Expenses</th><th>Net ETB</th></tr></thead>
-      <tbody id="reportBody"><tr><td colspan="6" class="empty">Loading...</td></tr></tbody>
-    </table>
-    <div style="border-top:1px solid var(--border);margin:12px 0"></div>
-    <h2 style="margin-bottom:8px">🏆 Staff Performance (7 days)</h2>
-    <table>
-      <thead><tr><th>Staff</th><th>Sales</th><th>Liters</th><th>Revenue ETB</th></tr></thead>
-      <tbody id="staffRepBody"><tr><td colspan="4" class="empty">Loading...</td></tr></tbody>
-    </table>
-  </div>
-
-  <!-- EXPENSES -->
+<!-- ================= SALES ================= -->
+<div class="section" id="sec-sales">
+  <h1 class="display">Sales</h1><div class="sub">All transactions (latest 100)</div>
   <div class="card">
-    <h2>💸 Expenses</h2>
+    <div class="card-tools">
+      <input type="search" id="saleSearch" placeholder="🔍 Search staff / fuel…" oninput="renderSales()"/>
+    </div>
+    <div class="tabs" id="payTabs">
+      <button class="tab active" data-pay="all" onclick="setPayFilter('all',this)">All</button>
+      <button class="tab" data-pay="cash" onclick="setPayFilter('cash',this)">Cash</button>
+      <button class="tab" data-pay="telebirr" onclick="setPayFilter('telebirr',this)">Telebirr</button>
+      <button class="tab" data-pay="cbe" onclick="setPayFilter('cbe',this)">CBE</button>
+      <button class="tab" data-pay="credit" onclick="setPayFilter('credit',this)">Credit</button>
+    </div>
+    <div class="table-scroll">
+    <table>
+      <thead><tr><th>Time</th><th>Staff</th><th>Fuel</th><th>Liters</th><th>ETB</th><th>Pay</th></tr></thead>
+      <tbody id="salesBody"><tr><td colspan="6" class="empty">Loading...</td></tr></tbody>
+    </table>
+    </div>
+  </div>
+</div>
+
+<!-- ================= EXPENSES ================= -->
+<div class="section" id="sec-expenses">
+  <h1 class="display">Expenses</h1><div class="sub">Operating costs</div>
+  <div class="card">
     <div class="grid2">
       <div class="field"><label>Category</label>
         <select id="exCat"><option>salary</option><option>electricity</option><option>maintenance</option><option>transport</option><option>other</option></select></div>
@@ -161,68 +464,389 @@ select option{background:var(--surface)}
     <div class="field"><label>Description</label><input type="text" id="exDesc"/></div>
     <button class="btn btn-gold" id="exBtn" onclick="addExpense()">➕ Record Expense</button>
     <div class="msg" id="exMsg"></div>
-    <div style="border-top:1px solid var(--border);margin:12px 0"></div>
+    <div class="divider"></div>
+    <div class="table-scroll">
     <table>
       <thead><tr><th>Date</th><th>Category</th><th>Description</th><th>ETB</th></tr></thead>
       <tbody id="exBody"><tr><td colspan="4" class="empty">Loading...</td></tr></tbody>
     </table>
+    </div>
   </div>
+</div>
 
-  <!-- ATTENDANCE -->
-  <div class="card">
-    <h2>🕐 Attendance Log</h2>
+<!-- ================= REPORTS ================= -->
+<div class="section" id="sec-reports">
+  <h1 class="display">Reports</h1><div class="sub">Performance &amp; profit</div>
+  <div class="card" id="printArea">
+    <h2 style="display:flex;justify-content:space-between;align-items:center">📊 Daily Report (7 days)
+      <button class="btn btn-blue no-print" onclick="window.print()">🖨 Print</button></h2>
+    <div class="table-scroll">
     <table>
-      <thead><tr><th>Staff</th><th>Check In</th><th>Check Out</th><th>Hours</th></tr></thead>
-      <tbody id="attBody"><tr><td colspan="4" class="empty">Loading...</td></tr></tbody>
+      <thead><tr><th>Day</th><th>Sales</th><th>Liters</th><th>Revenue</th><th>Expenses</th><th>Net ETB</th></tr></thead>
+      <tbody id="reportBody"><tr><td colspan="6" class="empty">Loading...</td></tr></tbody>
     </table>
-  </div>
-
-  <!-- NOZZLE READINGS -->
-  <div class="card">
-    <h2>⛽ Nozzle Readings (latest 100)</h2>
+    </div>
+    <div class="divider"></div>
+    <h2>⛽ Fuel Totals (7 days)</h2>
+    <div class="table-scroll">
     <table>
-      <thead><tr><th>Staff</th><th>Nozzle</th><th>Fuel</th><th>Open</th><th>Close</th><th>Liters</th></tr></thead>
-      <tbody id="nrBody"><tr><td colspan="6" class="empty">Loading...</td></tr></tbody>
+      <thead><tr><th>Fuel</th><th>Sales</th><th>Liters</th><th>Revenue ETB</th></tr></thead>
+      <tbody id="fuelRepBody"><tr><td colspan="4" class="empty">Loading...</td></tr></tbody>
     </table>
+    </div>
+    <div class="divider"></div>
+    <h2>🏆 Staff Performance (7 days)</h2>
+    <div class="table-scroll">
+    <table>
+      <thead><tr><th>Staff</th><th>Diesel L</th><th>Diesel ETB</th><th>Petrol L</th><th>Petrol ETB</th><th>Total L</th><th>Total ETB</th></tr></thead>
+      <tbody id="staffRepBody"><tr><td colspan="7" class="empty">Loading...</td></tr></tbody>
+    </table>
+    </div>
   </div>
+</div>
 
-  <!-- SHIFTS -->
+<!-- ================= SHIFTS ================= -->
+<div class="section" id="sec-shifts">
+  <h1 class="display">Shifts</h1><div class="sub">Shifts, meters &amp; attendance</div>
   <div class="card">
     <h2>🕒 Shifts</h2>
+    <div class="table-scroll">
     <table>
       <thead><tr><th>Staff</th><th>Opened</th><th>Open M</th><th>Close M</th><th>Liters</th><th>Status</th></tr></thead>
-      <tbody id="shiftBody"><tr><td colspan="6" class="empty">Loading...</td></tr></tbody>
+      <tbody id="shiftBody"><tr><td colspan="6" class="empty">No shifts yet</td></tr></tbody>
     </table>
+    </div>
   </div>
-
-  <!-- SALES -->
   <div class="card">
-    <h2>💰 All Sales (latest 100)</h2>
+    <h2>⛽ Nozzle Readings</h2>
+    <div class="table-scroll">
     <table>
-      <thead><tr><th>Time</th><th>Staff</th><th>Fuel</th><th>Liters</th><th>ETB</th><th>Pay</th></tr></thead>
-      <tbody id="salesBody"><tr><td colspan="6" class="empty">Loading...</td></tr></tbody>
+      <thead><tr><th>Staff</th><th>Nozzle</th><th>Fuel</th><th>Open</th><th>Close</th><th>Liters</th></tr></thead>
+      <tbody id="nrBody"><tr><td colspan="6" class="empty">No readings yet</td></tr></tbody>
     </table>
+    </div>
   </div>
+  <div class="card">
+    <h2>🕐 Attendance Log</h2>
+    <div class="table-scroll">
+    <table>
+      <thead><tr><th>Staff</th><th>Check In</th><th>Check Out</th><th>Hours</th></tr></thead>
+      <tbody id="attBody"><tr><td colspan="4" class="empty">No attendance yet</td></tr></tbody>
+    </table>
+    </div>
+  </div>
+</div>
 
 </div>
+
+<!-- Bottom quick-nav (mobile) -->
+<nav class="bottom-nav">
+  <button class="bn-item active" data-s="dashboard" onclick="go('dashboard',this)"><span class="ic">📊</span>Home</button>
+  <button class="bn-item" data-s="prices" onclick="go('prices',this)"><span class="ic">💲</span>Prices</button>
+  <button class="bn-item" data-s="sales" onclick="go('sales',this)"><span class="ic">💰</span>Sales</button>
+  <button class="bn-item" data-s="reports" onclick="go('reports',this)"><span class="ic">📈</span>Reports</button>
+  <button class="bn-item" onclick="toggleMenu()"><span class="ic">☰</span>More</button>
+</nav>
+
 </div>
 
 <script src="config.js"></script>
 <script>
-let session=null, allStaff=[], filter='pending', tanksCache=[];
+/* MAGPMS shared UI: theme, navigation, toasts, modals, connection banner.
+   Must load AFTER config.js (wraps rpc for connection feedback). */
+(function () {
+  "use strict";
+
+  /* ---------- theme ---------- */
+  var THEMES = ["dark", "light", "auto"];
+  var THEME_ICONS = { dark: "🌙", light: "☀️", auto: "🌓" };
+
+  function getTheme() {
+    try { return localStorage.getItem("magpms_theme") || "dark"; } catch (e) { return "dark"; }
+  }
+  function applyTheme(t) {
+    document.documentElement.setAttribute("data-theme", t);
+    var b = document.getElementById("themeBtn");
+    if (b) { b.textContent = THEME_ICONS[t]; b.title = "Theme: " + t; }
+  }
+  function cycleTheme() {
+    var next = THEMES[(THEMES.indexOf(getTheme()) + 1) % THEMES.length];
+    try { localStorage.setItem("magpms_theme", next); } catch (e) {}
+    applyTheme(next);
+    toast("Theme: " + next);
+  }
+
+  /* ---------- navigation (drawer + sections + bottom nav) ---------- */
+  function isDesktop() { return window.innerWidth >= 900; }
+
+  function toggleMenu() {
+    if (isDesktop()) return; // permanent sidebar on desktop
+    var m = document.getElementById("sideMenu");
+    var o = document.getElementById("menuOverlay");
+    if (m) m.classList.toggle("open");
+    if (o) o.classList.toggle("show");
+    syncBridge();
+  }
+
+  function go(sec, el) {
+    document.querySelectorAll(".section").forEach(function (s) { s.classList.remove("show"); });
+    var target = document.getElementById("sec-" + sec);
+    if (target) target.classList.add("show");
+    document.querySelectorAll(".mi").forEach(function (m) {
+      m.classList.toggle("active", m.getAttribute("data-s") === sec);
+    });
+    document.querySelectorAll(".bn-item").forEach(function (b) {
+      b.classList.toggle("active", b.getAttribute("data-s") === sec);
+    });
+    if (el && el.classList.contains("mi")) toggleMenu();
+    window.scrollTo(0, 0);
+  }
+
+  /* ---------- helpers shared with page scripts ---------- */
+  function esc(s) {
+    var d = document.createElement("div");
+    d.textContent = s || "";
+    return d.innerHTML;
+  }
+  function msg(id, text, type) {
+    var el = document.getElementById(id);
+    if (!el) return;
+    el.textContent = text;
+    el.className = "msg " + type;
+  }
+  function tick() {
+    var n = new Date();
+    var d = document.getElementById("clockDate");
+    var t = document.getElementById("clockTime");
+    if (d) d.textContent = n.toLocaleDateString("en-GB", { weekday: "long", day: "2-digit", month: "long", year: "numeric" });
+    if (t) t.textContent = n.toLocaleTimeString("en-GB");
+  }
+
+  /* ---------- toast ---------- */
+  function toast(text, kind) {
+    var host = document.getElementById("toastHost");
+    if (!host) {
+      host = document.createElement("div");
+      host.id = "toastHost";
+      document.body.appendChild(host);
+    }
+    var t = document.createElement("div");
+    t.className = "toast" + (kind ? " " + kind : "");
+    t.textContent = text;
+    host.appendChild(t);
+    setTimeout(function () {
+      t.style.transition = "opacity .3s";
+      t.style.opacity = "0";
+      setTimeout(function () { t.remove(); }, 320);
+    }, 2400);
+  }
+
+  /* ---------- modal dialogs (replace alert/confirm/prompt) ---------- */
+  function ensureModal() {
+    var bd = document.getElementById("uiModal");
+    if (bd) return bd;
+    bd = document.createElement("div");
+    bd.id = "uiModal";
+    bd.className = "modal-backdrop";
+    bd.innerHTML =
+      '<div class="modal">' +
+      '<h3 id="umTitle"></h3>' +
+      '<p id="umText"></p>' +
+      '<div class="field hidden" id="umField" style="margin-top:12px">' +
+      '<label id="umLabel"></label>' +
+      '<input id="umInput" type="number" step="0.01" min="0" inputmode="decimal"/>' +
+      "</div>" +
+      '<div class="m-actions">' +
+      '<button class="btn btn-ghost" id="umCancel">Cancel</button>' +
+      '<button class="btn" id="umOk">OK</button>' +
+      "</div></div>";
+    document.body.appendChild(bd);
+    bd.addEventListener("click", function (e) { if (e.target === bd) closeDialog(null); });
+    return bd;
+  }
+  var pendingResolve = null;
+  function closeDialog(value) {
+    var bd = document.getElementById("uiModal");
+    if (bd) bd.classList.remove("open");
+    if (pendingResolve) { pendingResolve(value); pendingResolve = null; }
+    syncBridge();
+  }
+  function openDialog(opts) {
+    var bd = ensureModal();
+    bd.querySelector("#umTitle").textContent = opts.title || "";
+    bd.querySelector("#umText").textContent = opts.text || "";
+    var field = bd.querySelector("#umField");
+    var input = bd.querySelector("#umInput");
+    if (opts.input) {
+      field.classList.remove("hidden");
+      bd.querySelector("#umLabel").textContent = opts.inputLabel || "";
+      input.value = "";
+      input.type = opts.inputType || "number";
+    } else {
+      field.classList.add("hidden");
+    }
+    var ok = bd.querySelector("#umOk");
+    ok.textContent = opts.okText || "OK";
+    ok.className = "btn " + (opts.danger ? "btn-no" : "btn-gold");
+    ok.style.width = "auto";
+    var okFresh = ok.cloneNode(true);
+    ok.parentNode.replaceChild(okFresh, ok);
+    okFresh.addEventListener("click", function () {
+      closeDialog(opts.input ? input.value : true);
+    });
+    var cancel = bd.querySelector("#umCancel");
+    var cancelFresh = cancel.cloneNode(true);
+    cancel.parentNode.replaceChild(cancelFresh, cancel);
+    cancelFresh.addEventListener("click", function () { closeDialog(null); });
+    return new Promise(function (resolve) {
+      pendingResolve = resolve;
+      bd.classList.add("open");
+      syncBridge();
+      if (opts.input) setTimeout(function () { input.focus(); }, 80);
+    });
+  }
+  function confirmDlg(title, text, okText, danger) {
+    return openDialog({ title: title, text: text, okText: okText || "Confirm", danger: danger !== false });
+  }
+  function promptNumber(title, text, label) {
+    return openDialog({ title: title, text: text, input: true, inputLabel: label, okText: "Save", danger: false })
+      .then(function (v) {
+        if (v === null) return null;
+        var n = parseFloat(v);
+        return isNaN(n) ? null : n;
+      });
+  }
+
+  /* ---------- connection banner + rpc wrapper ---------- */
+  function ensureBanner() {
+    var b = document.getElementById("netBanner");
+    if (!b) {
+      b = document.createElement("div");
+      b.id = "netBanner";
+      b.textContent = "⚠ Connection problem — some data did not load. Check internet.";
+      document.body.appendChild(b);
+    }
+    return b;
+  }
+  function netFail() { ensureBanner().classList.add("show"); }
+  function netOk() {
+    var b = document.getElementById("netBanner");
+    if (b) b.classList.remove("show");
+  }
+  if (typeof window.rpc === "function") {
+    var _rpc = window.rpc;
+    window.rpc = function (fn, params) {
+      return _rpc(fn, params).then(function (r) { netOk(); return r; },
+        function (e) { netFail(); throw e; });
+    };
+  }
+
+  /* ---------- tank level rendering ---------- */
+  function tankRow(t) {
+    var pct = Math.max(0, Math.min(100, (t.current_liters / t.capacity_liters) * 100));
+    var lvl = pct < 15 ? " lvl-low" : (pct < 30 ? " lvl-warn" : "");
+    return '<div class="tank"><span>' + esc(t.tank_name) + " · " + esc(t.fuel_type) + "</span>" +
+      '<span class="mono">' + Number(t.current_liters).toLocaleString() + " / " +
+      Number(t.capacity_liters).toLocaleString() + ' L</span>' +
+      '<span class="bar"><i class="' + lvl.trim() + '" style="width:' + pct + '%"></i></span></div>';
+  }
+  function lowTankCount(tanks) {
+    return tanks.filter(function (t) {
+      return (t.current_liters / t.capacity_liters) * 100 < 15;
+    }).length;
+  }
+
+  /* ---------- "last updated" stamp ---------- */
+  function stampUpdated(id) {
+    var el = document.getElementById(id);
+    if (el) el.textContent = "Updated " + new Date().toLocaleTimeString("en-GB");
+  }
+
+  /* ---------- Android shell bridge: pull-to-refresh guard ---------- */
+  function syncBridge() {
+    if (!window.AndroidBridge || !AndroidBridge.setPullToRefresh) return;
+    var drawerOpen = !isDesktop() && document.getElementById("sideMenu") &&
+      document.getElementById("sideMenu").classList.contains("open");
+    var modalOpen = document.querySelector(".modal-backdrop.open");
+    var scrolled = window.scrollY > 4;
+    AndroidBridge.setPullToRefresh(!drawerOpen && !modalOpen && !scrolled);
+  }
+  window.addEventListener("scroll", syncBridge, { passive: true });
+
+  /* ---------- init ---------- */
+  applyTheme(getTheme());
+  document.addEventListener("DOMContentLoaded", function () {
+    var tb = document.getElementById("themeBtn");
+    if (tb) { tb.addEventListener("click", cycleTheme); applyTheme(getTheme()); }
+    if (document.getElementById("sideMenu")) document.body.classList.add("has-sidebar");
+    setInterval(tick, 1000);
+    tick();
+    syncBridge();
+  });
+
+  /* expose globals used by the page scripts */
+  window.UI = {
+    toast: toast, confirmDlg: confirmDlg, promptNumber: promptNumber,
+    tankRow: tankRow, lowTankCount: lowTankCount, stampUpdated: stampUpdated,
+    netFail: netFail, netOk: netOk
+  };
+  window.toggleMenu = toggleMenu;
+  window.go = go;
+  window.esc = esc;
+  window.msg = msg;
+})();
+
+</script>
+<script>
+let session=null, allStaff=[], allSales=[], filter='pending', payFilter='all';
 
 function logout(){localStorage.removeItem('magpms_admin');location.href='index.html';}
-function esc(s){const d=document.createElement('div');d.textContent=s||'';return d.innerHTML;}
-function msg(id,text,type){const el=document.getElementById(id);el.textContent=text;el.className='msg '+type;}
 
-/* ---- PRICES ---- */
-async function loadPrices(){
+/* DASHBOARD */
+async function loadDashboard(){
   try{
-    const r=await rpc('get_prices',{});
+    const [sales,tanks,custs,att]=await Promise.all([
+      rpc('list_sales',{p_staff_id:null,p_limit:100}),
+      rpc('list_tanks',{}),
+      rpc('list_credit_customers',{}),
+      rpc('admin_list_attendance',{p_limit:100})
+    ]);
+    if(Array.isArray(sales)){
+      const live=sales.filter(s=>!s.voided);
+      const rev=live.reduce((a,s)=>a+Number(s.total_etb||0),0);
+      document.getElementById('dTotalSales').textContent=rev.toLocaleString(undefined,{maximumFractionDigits:0});
+      const tx=document.getElementById('recentTx');
+      const recent=live.slice(0,8);
+      tx.innerHTML=recent.length?recent.map(s=>{
+        const t=new Date(s.created_at).toLocaleString('en-GB',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'});
+        return `<div class="tx"><div class="l"><h4>${s.fuel_type} · ${s.liters} L</h4>
+          <p>${esc(s.staff_name)} · ${t} · ${esc(s.payment_method)}</p></div>
+          <div class="amt">+${Number(s.total_etb).toFixed(0)} ETB</div></div>`;
+      }).join(''):'<div class="empty">No transactions yet</div>';
+    }
+    if(Array.isArray(tanks)){
+      const stock=tanks.reduce((a,t)=>a+Number(t.current_liters||0),0);
+      document.getElementById('dFuelStock').textContent=stock.toLocaleString(undefined,{maximumFractionDigits:0});
+      document.getElementById('dStockBadge').classList.toggle('hidden',UI.lowTankCount(tanks)===0);
+    }
+    if(Array.isArray(custs)){
+      const cb=custs.reduce((a,c)=>a+Number(c.balance||0),0);
+      document.getElementById('dCredit').textContent=cb.toLocaleString(undefined,{maximumFractionDigits:0});
+    }
+    if(Array.isArray(att)){
+      const on=att.filter(a=>!a.check_out).length;
+      document.getElementById('dOnDuty').textContent=on;
+    }
+    UI.stampUpdated('updStamp');
+  }catch(e){}
+}
+
+/* PRICES */
+async function loadPrices(){
+  try{const r=await rpc('get_prices',{});
     if(Array.isArray(r))r.forEach(p=>{
       if(p.fuel_type==='Diesel')document.getElementById('prDiesel').value=p.price_per_liter;
-      if(p.fuel_type==='Petrol')document.getElementById('prPetrol').value=p.price_per_liter;
-    });
+      if(p.fuel_type==='Petrol')document.getElementById('prPetrol').value=p.price_per_liter;});
   }catch(e){}
 }
 async function savePrices(){
@@ -233,18 +857,20 @@ async function savePrices(){
   try{
     const r1=await rpc('admin_set_price',{p_admin_id:session.id,p_fuel_type:'Diesel',p_price:d});
     const r2=await rpc('admin_set_price',{p_admin_id:session.id,p_fuel_type:'Petrol',p_price:p});
-    msg('priceMsg',(r1.success&&r2.success)?'Prices updated':'Error updating',(r1.success&&r2.success)?'success':'error');
+    const ok=r1.success&&r2.success;
+    msg('priceMsg',ok?'Prices updated':'Error updating',ok?'success':'error');
+    if(ok)UI.toast('Prices updated ✔','ok');
   }catch(e){msg('priceMsg','Connection error','error');}
   finally{btn.disabled=false;}
 }
 
-/* ---- STAFF ---- */
-function setFilter(f,btn){filter=f;document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));btn.classList.add('active');renderStaff();}
+/* STAFF */
+function setFilter(f,btn){filter=f;document.querySelectorAll('#sec-staff .tab').forEach(t=>t.classList.remove('active'));btn.classList.add('active');renderStaff();}
 function renderStaff(){
   const list=document.getElementById('staffList');
-  const rows=filter==='all'?allStaff:allStaff.filter(s=>s.status===filter);
-  document.getElementById('stPending').textContent=allStaff.filter(s=>s.status==='pending').length;
-  document.getElementById('stApproved').textContent=allStaff.filter(s=>s.status==='approved').length;
+  const q=(document.getElementById('staffSearch').value||'').trim().toLowerCase();
+  let rows=filter==='all'?allStaff:allStaff.filter(s=>s.status===filter);
+  if(q)rows=rows.filter(s=>(s.full_name||'').toLowerCase().includes(q)||(s.username||'').toLowerCase().includes(q));
   if(rows.length===0){list.className='empty';list.textContent='No staff in this category';return;}
   list.className='';
   list.innerHTML=rows.map(s=>`
@@ -266,25 +892,25 @@ function renderStaff(){
 }
 async function setStatus(id,status){
   const r=await rpc('admin_set_staff_status',{p_staff_id:id,p_admin_id:session.id,p_status:status});
-  if(r.success)loadStaff();else alert(r.message||'Failed');
+  if(r.success){UI.toast('Staff '+status,status==='approved'?'ok':undefined);loadStaff();}
+  else UI.toast(r.message||'Failed','err');
+}
+async function setRole(staffId,role){
+  const r=await rpc('admin_set_staff_role',{p_admin_id:session.id,p_staff_id:staffId,p_role:role});
+  if(!r.success)UI.toast(r.message||'Failed','err');else UI.toast('Role updated','ok');
+  loadStaff();
 }
 async function loadStaff(){
   try{const r=await rpc('admin_list_staff',{p_status:null});allStaff=Array.isArray(r)?r:[];renderStaff();}catch(e){}
 }
 
-/* ---- TANKS + DELIVERY ---- */
+/* TANKS */
 async function loadTanks(){
   try{
     const tanks=await rpc('list_tanks',{});
     if(!Array.isArray(tanks))return;
-    tanksCache=tanks;
     const el=document.getElementById('tankList');el.className='';
-    el.innerHTML=tanks.map(t=>{
-      const pct=Math.max(0,Math.min(100,(t.current_liters/t.capacity_liters)*100));
-      return `<div class="tank"><span>${t.tank_name} · ${t.fuel_type}</span>
-        <span class="mono">${Number(t.current_liters).toLocaleString()} / ${Number(t.capacity_liters).toLocaleString()} L</span>
-        <span class="bar"><i style="width:${pct}%"></i></span></div>`;
-    }).join('');
+    el.innerHTML=tanks.map(t=>UI.tankRow(t)).join('');
     document.getElementById('dvTank').innerHTML=tanks.map(t=>
       `<option value="${t.id}">${t.tank_name} (${t.fuel_type})</option>`).join('');
   }catch(e){}
@@ -297,12 +923,12 @@ async function recordDelivery(){
   try{
     const r=await rpc('admin_record_delivery',{p_admin_id:session.id,p_tank_id:tank,p_liters:liters});
     msg('dvMsg',r.message,r.success?'success':'error');
-    if(r.success){document.getElementById('dvLiters').value='';loadTanks();}
+    if(r.success){UI.toast('Delivery recorded ✔','ok');document.getElementById('dvLiters').value='';loadTanks();loadDashboard();}
   }catch(e){msg('dvMsg','Connection error','error');}
   finally{btn.disabled=false;}
 }
 
-/* ---- CREDIT CUSTOMERS ---- */
+/* CREDIT */
 async function addCustomer(){
   const name=document.getElementById('ccName').value.trim();
   const phone=document.getElementById('ccPhone').value.trim();
@@ -313,16 +939,16 @@ async function addCustomer(){
   try{
     const r=await rpc('admin_add_credit_customer',{p_admin_id:session.id,p_name:name,p_phone:phone,p_plate:plate,p_limit:lim});
     msg('ccMsg',r.message,r.success?'success':'error');
-    if(r.success){['ccName','ccPhone','ccPlate'].forEach(i=>document.getElementById(i).value='');document.getElementById('ccLimit').value='0';loadCustomers();}
+    if(r.success){['ccName','ccPhone','ccPlate'].forEach(i=>document.getElementById(i).value='');document.getElementById('ccLimit').value='0';loadCustomers();loadDashboard();}
   }catch(e){msg('ccMsg','Connection error','error');}
   finally{btn.disabled=false;}
 }
 async function payCredit(id,name){
-  const amt=parseFloat(prompt('Payment amount (ETB) from '+name+':'));
+  const amt=await UI.promptNumber('Credit Payment','Record a payment from '+name+'.','Payment amount (ETB)');
   if(!amt||amt<=0)return;
   const r=await rpc('admin_credit_payment',{p_admin_id:session.id,p_customer_id:id,p_amount:amt});
-  alert(r.message||'Done');
-  if(r.success)loadCustomers();
+  UI.toast(r.message||'Done',r.success?'ok':'err');
+  if(r.success){loadCustomers();loadDashboard();}
 }
 async function loadCustomers(){
   try{
@@ -340,60 +966,39 @@ async function loadCustomers(){
   }catch(e){}
 }
 
-/* ---- SHIFTS ---- */
-async function loadShifts(){
-  try{
-    const r=await rpc('admin_list_shifts',{p_limit:50});
-    const tb=document.getElementById('shiftBody');
-    if(!Array.isArray(r)||r.length===0){tb.innerHTML='<tr><td colspan="6" class="empty">No shifts yet</td></tr>';return;}
-    tb.innerHTML=r.map(sh=>{
-      const opened=new Date(sh.opened_at).toLocaleString('en-GB',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});
-      const liters=(sh.closing_meter!=null&&sh.opening_meter!=null)?(sh.closing_meter-sh.opening_meter).toFixed(1):'—';
-      return `<tr><td>${esc(sh.staff_name)}</td><td class="mono">${opened}</td>
-        <td class="mono">${sh.opening_meter??'—'}</td><td class="mono">${sh.closing_meter??'—'}</td>
-        <td class="mono">${liters}</td><td><span class="tag ${sh.status}">${sh.status}</span></td></tr>`;
-    }).join('');
-  }catch(e){}
+/* SALES */
+function setPayFilter(p,btn){payFilter=p;document.querySelectorAll('#payTabs .tab').forEach(t=>t.classList.remove('active'));btn.classList.add('active');renderSales();}
+function renderSales(){
+  const tb=document.getElementById('salesBody');
+  const q=(document.getElementById('saleSearch').value||'').trim().toLowerCase();
+  let rows=allSales;
+  if(payFilter!=='all')rows=rows.filter(s=>(s.payment_method||'').toLowerCase()===payFilter);
+  if(q)rows=rows.filter(s=>(s.staff_name||'').toLowerCase().includes(q)||(s.fuel_type||'').toLowerCase().includes(q));
+  if(rows.length===0){tb.innerHTML='<tr><td colspan="6" class="empty">No matching sales</td></tr>';return;}
+  tb.innerHTML=rows.map(s=>{
+    const t=new Date(s.created_at).toLocaleString('en-GB',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});
+    const style=s.voided?' style="opacity:.4;text-decoration:line-through"':'';
+    const act=s.voided?'<span class="tag rejected">void</span>':`<button class="btn btn-no" style="padding:4px 9px;font-size:11px" onclick="voidSale('${s.id}')">Void</button>`;
+    return `<tr${style}><td class="mono">${t}</td><td>${esc(s.staff_name)}</td><td>${s.fuel_type}</td>
+      <td class="mono">${s.liters}</td><td class="mono">${Number(s.total_etb).toFixed(2)}</td><td>${esc(s.payment_method)} ${act}</td></tr>`;
+  }).join('');
 }
-
-/* ---- SALES ---- */
 async function loadSales(){
   try{
     const sales=await rpc('list_sales',{p_staff_id:null,p_limit:100});
-    const tb=document.getElementById('salesBody');
-    if(!Array.isArray(sales)||sales.length===0){
-      tb.innerHTML='<tr><td colspan="6" class="empty">No sales yet</td></tr>';
-      document.getElementById('stSales').textContent='0';
-      document.getElementById('stRevenue').textContent='0';return;}
-    const live=sales.filter(s=>!s.voided);
-    document.getElementById('stSales').textContent=live.length;
-    const rev=live.reduce((a,s)=>a+Number(s.total_etb||0),0);
-    document.getElementById('stRevenue').textContent=rev.toLocaleString(undefined,{maximumFractionDigits:0});
-    tb.innerHTML=sales.map(s=>{
-      const t=new Date(s.created_at).toLocaleString('en-GB',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});
-      const style=s.voided?' style="opacity:.4;text-decoration:line-through"':'';
-      const act=s.voided?'<span class="tag rejected">void</span>':`<button class="btn btn-no" style="padding:4px 9px;font-size:11px" onclick="voidSale('${s.id}')">Void</button>`;
-      return `<tr${style}><td class="mono">${t}</td><td>${esc(s.staff_name)}</td><td>${s.fuel_type}</td>
-        <td class="mono">${s.liters}</td><td class="mono">${Number(s.total_etb).toFixed(2)}</td><td>${esc(s.payment_method)} ${act}</td></tr>`;
-    }).join('');
+    allSales=Array.isArray(sales)?sales:[];
+    renderSales();
   }catch(e){}
 }
-
 async function voidSale(id){
-  if(!confirm('Void this sale? Tank and credit balance will be reversed.'))return;
+  const ok=await UI.confirmDlg('Void Sale','Void this sale? Tank stock and credit balance will be reversed.','Void Sale');
+  if(!ok)return;
   const r=await rpc('admin_void_sale',{p_admin_id:session.id,p_sale_id:id});
-  alert(r.message||'Done');
-  if(r.success){loadSales();loadTanks();loadCustomers();loadReports();}
+  UI.toast(r.message||'Done',r.success?'ok':'err');
+  if(r.success){loadSales();loadTanks();loadCustomers();loadReports();loadDashboard();}
 }
 
-/* ---- V3: ROLE ---- */
-async function setRole(staffId,role){
-  const r=await rpc('admin_set_staff_role',{p_admin_id:session.id,p_staff_id:staffId,p_role:role});
-  if(!r.success)alert(r.message||'Failed');
-  loadStaff();
-}
-
-/* ---- V3: EXPENSES ---- */
+/* EXPENSES */
 async function addExpense(){
   const cat=document.getElementById('exCat').value;
   const amt=parseFloat(document.getElementById('exAmt').value);
@@ -403,7 +1008,7 @@ async function addExpense(){
   try{
     const r=await rpc('admin_add_expense',{p_admin_id:session.id,p_category:cat,p_description:desc,p_amount:amt});
     msg('exMsg',r.message,r.success?'success':'error');
-    if(r.success){document.getElementById('exAmt').value='';document.getElementById('exDesc').value='';loadExpenses();loadReports();}
+    if(r.success){UI.toast('Expense recorded ✔','ok');document.getElementById('exAmt').value='';document.getElementById('exDesc').value='';loadExpenses();loadReports();}
   }catch(e){msg('exMsg','Connection error','error');}
   finally{btn.disabled=false;}
 }
@@ -419,7 +1024,7 @@ async function loadExpenses(){
   }catch(e){}
 }
 
-/* ---- V3: REPORTS ---- */
+/* REPORTS */
 async function loadReports(){
   try{
     const days=await rpc('daily_report',{p_days:7});
@@ -433,27 +1038,66 @@ async function loadReports(){
           <td class="mono" style="color:${net>=0?'var(--success)':'var(--danger)'}">${net.toFixed(2)}</td></tr>`;
       }).join('');
     }else{tb.innerHTML='<tr><td colspan="6" class="empty">No data</td></tr>';}
+    /* fuel totals */
+    const fuel=await rpc('fuel_report',{p_days:7});
+    const fb=document.getElementById('fuelRepBody');
+    if(Array.isArray(fuel)&&fuel.length){
+      const fl=fuel.reduce((a,f)=>a+Number(f.liters),0);
+      const fr=fuel.reduce((a,f)=>a+Number(f.revenue_etb),0);
+      const fc=fuel.reduce((a,f)=>a+Number(f.sales_count),0);
+      fb.innerHTML=fuel.map(f=>`<tr><td>${f.fuel_type}</td><td class="mono">${f.sales_count}</td>
+        <td class="mono">${Number(f.liters).toFixed(1)}</td><td class="mono">${Number(f.revenue_etb).toFixed(2)}</td></tr>`).join('')
+        +`<tr style="font-weight:700;color:var(--accent)"><td>TOTAL</td><td class="mono">${fc}</td>
+        <td class="mono">${fl.toFixed(1)}</td><td class="mono">${fr.toFixed(2)}</td></tr>`;
+    }else{fb.innerHTML='<tr><td colspan="4" class="empty">No data</td></tr>';}
 
-    const staff=await rpc('staff_report',{p_days:7});
+    /* staff with fuel breakdown */
+    const staff=await rpc('staff_report_v2',{p_days:7});
     const sb=document.getElementById('staffRepBody');
     if(Array.isArray(staff)&&staff.length){
-      sb.innerHTML=staff.map(s=>`<tr><td>${esc(s.staff_name)}</td><td class="mono">${s.sales_count}</td>
-        <td class="mono">${Number(s.liters).toFixed(1)}</td><td class="mono">${Number(s.revenue_etb).toFixed(2)}</td></tr>`).join('');
-    }else{sb.innerHTML='<tr><td colspan="4" class="empty">No data</td></tr>';}
+      const T={dl:0,de:0,pl:0,pe:0,tl:0,te:0};
+      sb.innerHTML=staff.map(s=>{
+        T.dl+=Number(s.diesel_liters);T.de+=Number(s.diesel_etb);
+        T.pl+=Number(s.petrol_liters);T.pe+=Number(s.petrol_etb);
+        T.tl+=Number(s.total_liters);T.te+=Number(s.total_etb);
+        return `<tr><td>${esc(s.staff_name)}</td>
+        <td class="mono">${Number(s.diesel_liters).toFixed(1)}</td><td class="mono">${Number(s.diesel_etb).toFixed(0)}</td>
+        <td class="mono">${Number(s.petrol_liters).toFixed(1)}</td><td class="mono">${Number(s.petrol_etb).toFixed(0)}</td>
+        <td class="mono">${Number(s.total_liters).toFixed(1)}</td><td class="mono">${Number(s.total_etb).toFixed(2)}</td></tr>`;
+      }).join('')
+      +`<tr style="font-weight:700;color:var(--accent)"><td>TOTAL</td>
+        <td class="mono">${T.dl.toFixed(1)}</td><td class="mono">${T.de.toFixed(0)}</td>
+        <td class="mono">${T.pl.toFixed(1)}</td><td class="mono">${T.pe.toFixed(0)}</td>
+        <td class="mono">${T.tl.toFixed(1)}</td><td class="mono">${T.te.toFixed(2)}</td></tr>`;
+    }else{sb.innerHTML='<tr><td colspan="7" class="empty">No data</td></tr>';}
   }catch(e){}
 }
 
-(function init(){
-  session=JSON.parse(localStorage.getItem('magpms_admin')||'null');
-  if(!session||!session.success){location.href='index.html';return;}
-  document.getElementById('whoami').textContent=session.full_name;
-  document.getElementById('loading').style.display='none';
-  document.getElementById('app').style.display='block';
-  loadPrices();loadStaff();loadTanks();loadCustomers();loadShifts();loadSales();loadExpenses();loadReports();
-  loadAttendance();loadReadings();
-})();
-
-/* ---- V4: ATTENDANCE ---- */
+/* SHIFTS + READINGS + ATTENDANCE */
+async function loadShifts(){
+  try{
+    const r=await rpc('admin_list_shifts',{p_limit:50});
+    const tb=document.getElementById('shiftBody');
+    if(!Array.isArray(r)||r.length===0){tb.innerHTML='<tr><td colspan="6" class="empty">No shifts yet</td></tr>';return;}
+    tb.innerHTML=r.map(sh=>{
+      const opened=new Date(sh.opened_at).toLocaleString('en-GB',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});
+      const liters=(sh.closing_meter!=null&&sh.opening_meter!=null)?(sh.closing_meter-sh.opening_meter).toFixed(1):'—';
+      return `<tr><td>${esc(sh.staff_name)}</td><td class="mono">${opened}</td>
+        <td class="mono">${sh.opening_meter??'—'}</td><td class="mono">${sh.closing_meter??'—'}</td>
+        <td class="mono">${liters}</td><td><span class="tag ${sh.status}">${sh.status}</span></td></tr>`;
+    }).join('');
+  }catch(e){}
+}
+async function loadReadings(){
+  try{
+    const r=await rpc('admin_list_readings',{p_limit:100});
+    const tb=document.getElementById('nrBody');
+    if(!Array.isArray(r)||r.length===0){tb.innerHTML='<tr><td colspan="6" class="empty">No readings yet</td></tr>';return;}
+    tb.innerHTML=r.map(x=>`<tr><td>${esc(x.staff_name)}</td><td>${x.nozzle_name}</td><td>${x.fuel_type}</td>
+      <td class="mono">${x.opening}</td><td class="mono">${x.closing??'—'}</td>
+      <td class="mono">${x.liters!=null?Number(x.liters).toFixed(1):'—'}</td></tr>`).join('');
+  }catch(e){}
+}
 async function loadAttendance(){
   try{
     const r=await rpc('admin_list_attendance',{p_limit:100});
@@ -470,31 +1114,20 @@ async function loadAttendance(){
   }catch(e){}
 }
 
-/* ---- V4: NOZZLE READINGS ---- */
-async function loadReadings(){
-  try{
-    const r=await rpc('admin_list_readings',{p_limit:100});
-    const tb=document.getElementById('nrBody');
-    if(!Array.isArray(r)||r.length===0){tb.innerHTML='<tr><td colspan="6" class="empty">No readings yet</td></tr>';return;}
-    tb.innerHTML=r.map(x=>`<tr><td>${esc(x.staff_name)}</td><td>${x.nozzle_name}</td><td>${x.fuel_type}</td>
-      <td class="mono">${x.opening}</td><td class="mono">${x.closing??'—'}</td>
-      <td class="mono">${x.liters!=null?Number(x.liters).toFixed(1):'—'}</td></tr>`).join('');
-  }catch(e){}
+function refreshAll(){
+  loadDashboard();loadTanks();loadSales();loadCustomers();
 }
 
-/* ---- V4: PRINT ---- */
-function printReport(){window.print();}
-const printCss=document.createElement('style');
-printCss.textContent=`@media print{
-  body{background:#fff;color:#000}
-  header,.stats,.card:not(#printArea),.no-print{display:none!important}
-  #printArea{border:none;box-shadow:none;background:#fff;color:#000}
-  #printArea h2{color:#000}
-  th{color:#333}td,th{border-bottom:1px solid #999}
-  .mono{color:#000}
-}`;
-document.head.appendChild(printCss);
+(function init(){
+  session=JSON.parse(localStorage.getItem('magpms_admin')||'null');
+  if(!session||!session.success){location.href='index.html';return;}
+  document.getElementById('whoami').textContent=session.full_name;
+  document.getElementById('loading').style.display='none';
+  document.getElementById('app').style.display='block';
+  loadDashboard();loadPrices();loadStaff();loadTanks();loadCustomers();
+  loadSales();loadExpenses();loadReports();loadShifts();loadReadings();loadAttendance();
+  setInterval(loadDashboard,60000);
+})();
 </script>
 </body>
 </html>
-
